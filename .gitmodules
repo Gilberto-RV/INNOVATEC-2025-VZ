@@ -1,0 +1,8 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/Gilberto-RV/INNOVATEC-2025-VZ-backend.git
+	branch = master
+[submodule "project"]
+	path = project
+	url = https://github.com/Gilberto-RV/INNOVATEC-2025-VZ-project.git
+	branch = version-anterior
