@@ -13,9 +13,19 @@ Guía rápida para levantar todos los servicios del proyecto:
 - Opcional: MongoDB si se usan datos persistentes
 
 ## Estructura relevante
-- `backend/` → API (Express)
-- `gestory/project/` → Panel Admin (Vite)
+- `backend/` → API (Express + MongoDB) con módulo Big Data
+- `gestory/project/` → Panel Admin (Vite) con Dashboard Big Data
 - `project/` → App móvil (Expo)
+
+## 🆕 Nueva Funcionalidad: Big Data
+
+El proyecto ahora incluye un módulo completo de **Big Data** que permite:
+- 📊 Recopilación automática de datos de uso
+- 📈 Dashboard interactivo en el panel de administración
+- 🔄 Procesamiento por lotes automatizado
+- 💾 Almacenamiento escalable en MongoDB Atlas
+
+**Más información**: Ver `backend/README_BIG_DATA.md` y `backend/BIG_DATA_IMPLEMENTATION.md`
 
 ---
 
@@ -30,7 +40,13 @@ npm run dev
 ```
 Expone: `http://localhost:5000` y API en `http://localhost:5000/api`.
 
-Si necesitas configurar credenciales, crea `.env` en `backend/`.
+Si necesitas configurar credenciales, crea `.env` en `backend/` con:
+```dotenv
+MONGO_URI=mongodb+srv://usuario:password@cluster.mongodb.net/innovatec
+PORT=5000
+ENABLE_BATCH_PROCESSING=true
+JWT_SECRET=tu_secret_jwt_aqui
+```
 
 ---
 
@@ -120,13 +136,11 @@ cd project; npm run dev
 
 ## Credenciales de administrador
 
-### Usuario Administrador 1
-- **Correo:** `admin@gmail.com`
-- **Contraseña:** (no se almacena en texto plano, contacta al equipo si necesitas acceder)
-
-### Usuario Administrador 2
+### Usuario Administrador Principal
 - **Correo:** `test@gmail.com`
 - **Contraseña:** `admin123`
+
+**Nota**: Este usuario tiene acceso completo al panel de administración, incluyendo el Dashboard de Big Data.
 
 ### Crear nuevos usuarios administradores
 Para crear un nuevo usuario administrador, usa el endpoint:
