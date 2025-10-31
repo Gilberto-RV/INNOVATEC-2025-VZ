@@ -8,25 +8,36 @@ export class AuthUseCases {
   }
 
   async login(email, password) {
-  const response = await this.authRepository.login({ email, password });
-  
-  if (response.token && response.user) {
-    const user = new User(response.user);
-    
-    if (!user.isAdmin()) {
-      throw new Error('Acceso denegado. Se requieren permisos de administrador.');
+    try {
+      const response = await this.authRepository.login({ email, password });
+      
+      // El response ya viene parseado desde axios (response.data)
+      const { token, user: userData, message } = response;
+      
+      if (!token || !userData) {
+        throw new Error(message || 'Credenciales inválidas');
+      }
+
+      const user = new User(userData);
+      
+      if (!user.isAdmin()) {
+        throw new Error('Acceso denegado. Se requieren permisos de administrador.');
+      }
+
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      // Actualiza token global de httpClient
+      setAuthToken(token);
+
+      return user;
+    } catch (error) {
+      // Si es un error de axios, extraer el mensaje del error
+      if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      }
+      throw error;
     }
-
-    localStorage.setItem('authToken', response.token);
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    
-    // Actualiza token global de httpClient
-    setAuthToken(response.token);
-
-    return user;
-  }
-  
-  throw new Error('Credenciales inválidas');
 }
 
   async logout() {

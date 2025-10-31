@@ -3,8 +3,13 @@ import axios from 'axios';
 // Base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Token global
-let authToken = localStorage.getItem('authToken');
+// Función para obtener el token desde localStorage
+const getAuthToken = () => {
+  return localStorage.getItem('authToken');
+};
+
+// Token global - se actualiza dinámicamente
+let authToken = getAuthToken();
 
 // Función para actualizar el token global
 export const setAuthToken = (token) => {
@@ -27,8 +32,10 @@ export const httpClient = axios.create({
 
 // Interceptor para agregar token a cada solicitud
 httpClient.interceptors.request.use((config) => {
-  if (authToken) {
-    config.headers.Authorization = `Bearer ${authToken}`;
+  // Siempre obtener el token más reciente de localStorage
+  const token = getAuthToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -38,10 +45,19 @@ httpClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Limpiar token y redirigir al login
-      setAuthToken(null);
-      localStorage.removeItem('currentUser');
-      window.location.href = '/login';
+      // Solo redirigir si no estamos ya en la página de login
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login' && !currentPath.includes('/login')) {
+        // Limpiar token y redirigir al login
+        setAuthToken(null);
+        localStorage.removeItem('currentUser');
+        // Solo redirigir si no estamos en el proceso de login
+        setTimeout(() => {
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
+        }, 100);
+      }
     }
     return Promise.reject(error);
   }

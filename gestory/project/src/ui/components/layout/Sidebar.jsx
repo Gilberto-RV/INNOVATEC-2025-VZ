@@ -6,12 +6,14 @@ import {
   Building2, 
   Settings, 
   ChevronLeft,
-  ChevronRight 
+  ChevronRight,
+  Database
 } from 'lucide-react';
 import './Sidebar.scss';
 
 const menuItems = [
   { path: '/admin/dashboard', icon: BarChart3, label: 'Dashboard' },
+  { path: '/admin/bigdata', icon: Database, label: 'Big Data' },
   { path: '/admin/calendario', icon: Calendar, label: 'Calendario' },
   { path: '/admin/eventos', icon: FileText, label: 'Eventos' },
   { path: '/admin/edificios', icon: Building2, label: 'Edificios' },
