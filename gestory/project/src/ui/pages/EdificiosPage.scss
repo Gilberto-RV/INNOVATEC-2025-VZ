@@ -1,0 +1,114 @@
+.edificios-page {
+  .filters-card {
+    margin-bottom: var(--spacing-6);
+    
+    .card-content {
+      padding: var(--spacing-4);
+    }
+  }
+}
+
+.edificios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-6);
+}
+
+.edificio-card {
+  overflow: hidden;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+.edificio-image {
+  height: 200px;
+  overflow: hidden;
+  background-color: var(--color-gray-100);
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .edificio-placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray-400);
+  }
+}
+
+.edificio-info {
+  padding: var(--spacing-5);
+  
+  h3 {
+    margin-bottom: var(--spacing-2);
+    color: var(--color-gray-900);
+  }
+  
+  p {
+    color: var(--color-gray-600);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-4);
+    line-height: var(--line-height-relaxed);
+  }
+}
+
+.edificio-detalles {
+  margin-bottom: var(--spacing-4);
+  
+  .detalle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-2) 0;
+    font-size: var(--font-size-sm);
+    
+    strong {
+      color: var(--color-gray-700);
+    }
+  }
+}
+
+.edificio-servicios {
+  margin-bottom: var(--spacing-4);
+  
+  strong {
+    display: block;
+    margin-bottom: var(--spacing-2);
+    color: var(--color-gray-700);
+    font-size: var(--font-size-sm);
+  }
+  
+  .servicios-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+    
+    .service-tag {
+      background-color: var(--color-gray-100);
+      color: var(--color-gray-600);
+      padding: var(--spacing-1) var(--spacing-2);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-xs);
+    }
+  }
+}
+
+.edificio-actions {
+  padding: var(--spacing-4) var(--spacing-5);
+  border-top: 1px solid var(--color-gray-200);
+  background-color: var(--color-gray-50);
+}
+
+@media (max-width: 768px) {
+  .edificios-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,190 @@
+.calendario-page {
+  .calendario-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: var(--spacing-6);
+    
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.calendario-card {
+  .react-calendar {
+    width: 100%;
+    border: none;
+    font-family: inherit;
+    
+    .react-calendar__navigation {
+      margin-bottom: var(--spacing-4);
+      
+      button {
+        background-color: transparent;
+        border: none;
+        color: var(--color-gray-700);
+        font-size: var(--font-size-base);
+        padding: var(--spacing-2);
+        border-radius: var(--border-radius-md);
+        
+        &:hover {
+          background-color: var(--color-gray-100);
+        }
+        
+        &:disabled {
+          opacity: 0.5;
+        }
+      }
+    }
+    
+    .react-calendar__month-view__weekdays {
+      .react-calendar__month-view__weekdays__weekday {
+        padding: var(--spacing-2);
+        text-align: center;
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-gray-600);
+        
+        abbr {
+          text-decoration: none;
+        }
+      }
+    }
+    
+    .react-calendar__month-view__days {
+      .react-calendar__tile {
+        position: relative;
+        padding: var(--spacing-2);
+        background: none;
+        border: none;
+        color: var(--color-gray-700);
+        font-size: var(--font-size-sm);
+        border-radius: var(--border-radius-md);
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        &:hover {
+          background-color: var(--color-gray-100);
+        }
+        
+        &.react-calendar__tile--active {
+          background-color: var(--color-primary);
+          color: var(--color-white);
+        }
+        
+        &.react-calendar__tile--now {
+          background-color: var(--color-accent);
+          color: var(--color-white);
+        }
+      }
+    }
+  }
+}
+
+.calendar-events-indicator {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  
+  .events-count {
+    background-color: var(--color-error);
+    color: var(--color-white);
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--border-radius-full);
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.eventos-dia-card {
+  .no-eventos {
+    text-align: center;
+    padding: var(--spacing-8);
+    
+    p {
+      color: var(--color-gray-600);
+      margin-bottom: var(--spacing-4);
+    }
+  }
+}
+
+.eventos-lista {
+  .evento-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--color-gray-200);
+    margin-bottom: var(--spacing-3);
+    
+    .evento-time {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-primary);
+      min-width: 60px;
+      font-size: var(--font-size-sm);
+    }
+    
+    .evento-info {
+      flex: 1;
+      
+      h4 {
+        margin-bottom: var(--spacing-1);
+        color: var(--color-gray-900);
+      }
+      
+      p {
+        color: var(--color-gray-600);
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--spacing-2);
+      }
+      
+      .evento-detalles {
+        display: flex;
+        gap: var(--spacing-3);
+        font-size: var(--font-size-xs);
+        color: var(--color-gray-500);
+        
+        span {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing-1);
+        }
+      }
+    }
+    
+    .evento-estado {
+      font-size: var(--font-size-xs);
+      padding: var(--spacing-1) var(--spacing-2);
+      border-radius: var(--border-radius-full);
+      font-weight: var(--font-weight-medium);
+      text-transform: capitalize;
+      
+      &.programado {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #1e40af;
+      }
+      
+      &.en_curso {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #065f46;
+      }
+      
+      &.finalizado {
+        background-color: rgba(107, 114, 128, 0.1);
+        color: var(--color-gray-700);
+      }
+      
+      &.cancelado {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #991b1b;
+      }
+    }
+  }
+}

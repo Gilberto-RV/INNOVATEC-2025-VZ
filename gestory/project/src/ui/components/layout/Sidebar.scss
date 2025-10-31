@@ -1,0 +1,125 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 280px;
+  background-color: var(--color-white);
+  border-right: 1px solid var(--color-gray-200);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width var(--transition-normal);
+  
+  &.collapsed {
+    width: 80px;
+    
+    .sidebar-header {
+      .logo span {
+        opacity: 0;
+        width: 0;
+      }
+    }
+    
+    .nav-item span {
+      opacity: 0;
+      width: 0;
+    }
+  }
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--color-gray-200);
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    color: var(--color-primary);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    
+    span {
+      transition: all var(--transition-normal);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+  
+  .toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    color: var(--color-gray-600);
+    cursor: pointer;
+    border-radius: var(--border-radius-md);
+    transition: all var(--transition-fast);
+    
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: var(--spacing-4);
+  
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3) var(--spacing-4);
+    margin-bottom: var(--spacing-1);
+    color: var(--color-gray-700);
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-fast);
+    
+    span {
+      transition: all var(--transition-normal);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    
+    &:hover {
+      background-color: var(--color-gray-100);
+      color: var(--color-gray-900);
+    }
+    
+    &.active {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+    
+    &.open {
+      transform: translateX(0);
+    }
+    
+    &.collapsed {
+      width: 280px;
+      
+      .sidebar-header .logo span,
+      .nav-item span {
+        opacity: 1;
+        width: auto;
+      }
+    }
+  }
+}

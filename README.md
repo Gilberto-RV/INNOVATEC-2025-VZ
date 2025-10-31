@@ -14,7 +14,7 @@ Guía rápida para levantar todos los servicios del proyecto:
 
 ## Estructura relevante
 - `backend/` → API (Express)
-- `__import_tmp/project-bolt-sb1-tgs5h47h/gestory/project/` → Panel Admin (Vite)
+- `gestory/project/` → Panel Admin (Vite)
 - `project/` → App móvil (Expo)
 
 ---
@@ -35,7 +35,7 @@ Si necesitas configurar credenciales, crea `.env` en `backend/`.
 ---
 
 ## 2) Panel de Administración (Vite)
-Ruta: `__import_tmp/project-bolt-sb1-tgs5h47h/gestory/project/`
+Ruta: `gestory/project/`
 
 Configurar URL del backend (recomendado vía `.env`):
 ```dotenv
@@ -48,7 +48,7 @@ VITE_API_URL=http://192.168.1.184:5000/api
 
 Instalar y levantar:
 ```powershell
-cd __import_tmp/project-bolt-sb1-tgs5h47h/gestory/project
+cd gestory/project
 npm install
 npm run dev
 ```
@@ -103,7 +103,7 @@ cd backend; npm install; npm run dev
 ```
 Panel Admin:
 ```powershell
-cd __import_tmp/project-bolt-sb1-tgs5h47h/gestory/project; npm install; npm run dev
+cd gestory/project; npm install; npm run dev
 ```
 Expo (móvil):
 ```powershell
@@ -118,12 +118,55 @@ cd project; npm run dev
 
 ---
 
-## Credenciales de administrador (actuales)
-- Correo: `admin@gmail.com`
-- Contraseña: no se almacena en texto plano. Si no la recuerdas, usa una de estas opciones:
-  - Registra un nuevo usuario con rol `administrador` usando `/auth/register`.
-  - Actualiza la contraseña del admin existente con el endpoint de actualización.
+## Credenciales de administrador
 
-Endpoints útiles (base `http://<IP_LOCAL>:5000/api`):
+### Usuario Administrador 1
+- **Correo:** `admin@gmail.com`
+- **Contraseña:** (no se almacena en texto plano, contacta al equipo si necesitas acceder)
+
+### Usuario Administrador 2
+- **Correo:** `test@gmail.com`
+- **Contraseña:** `admin123`
+
+### Crear nuevos usuarios administradores
+Para crear un nuevo usuario administrador, usa el endpoint:
+- POST `http://<IP_LOCAL>:5000/api/auth/register`
+- Body: `{ "email": "tu-email@ejemplo.com", "password": "tu-contraseña", "role": "administrador" }`
+
+**Endpoints útiles:**
 - POST `/auth/login` → `{ email, password }`
 - POST `/auth/register` → `{ email, password, role }` (usa `role: "administrador"`) 
+
+---
+
+## Sincronización y actualización con GitHub
+
+Para subir tus cambios locales a GitHub en cada proyecto (repite para backend, project y panel):
+
+```sh
+git add .
+git commit -m "Describe brevemente tu cambio"
+git push origin main
+```
+
+Ejemplo para cada repositorio:
+
+**Backend:**
+```sh
+cd backend
+# (haz los comandos git aquí)
+```
+
+**App Expo:**
+```sh
+cd project
+# (haz los comandos git aquí)
+```
+
+**Panel admin:**
+```sh
+cd gestory/project
+# (haz los comandos git aquí)
+```
+
+Esto mantendrá tus repos siempre actualizados en GitHub para colaboración o respaldo. 
