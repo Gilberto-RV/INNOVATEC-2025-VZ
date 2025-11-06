@@ -229,11 +229,35 @@
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
+      &.chart-card--fullwidth {
+        grid-column: 1 / -1;
+      }
+
       .no-data-message {
         text-align: center;
         padding: 3rem;
         color: #a0aec0;
         font-style: italic;
+      }
+
+      // Mejorar estilos de los tooltips y labels
+      :global(.recharts-cartesian-axis-tick-value) {
+        font-size: 11px;
+        fill: #4a5568;
+      }
+
+      :global(.recharts-tooltip-wrapper) {
+        .recharts-tooltip {
+          background: rgba(255, 255, 255, 0.95);
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          padding: 0.5rem;
+        }
+      }
+
+      :global(.recharts-legend-wrapper) {
+        padding-top: 1rem;
       }
     }
   }
@@ -281,6 +305,22 @@
               td {
                 padding: 1rem;
                 color: #2d3748;
+                font-size: 0.95rem;
+                
+                // Primera columna (nombres/acciones) con mejor formato
+                &:first-child {
+                  font-weight: 500;
+                  color: #2d3748;
+                  max-width: 300px;
+                  word-wrap: break-word;
+                }
+
+                // Columnas numéricas
+                &:not(:first-child) {
+                  text-align: right;
+                  font-weight: 600;
+                  color: #4a5568;
+                }
 
                 &.no-data {
                   text-align: center;

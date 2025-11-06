@@ -116,9 +116,35 @@ export function BigDataDashboardPage() {
   const buildingStats = dashboardData?.buildings || [];
   const eventStats = dashboardData?.events || [];
 
-  // Gráfico de actividad de usuarios
+  // Función para traducir acciones a español
+  const translateAction = (action) => {
+    const translations = {
+      'login': 'Iniciar Sesión',
+      'logout': 'Cerrar Sesión',
+      'view_building': 'Ver Edificio',
+      'view_event': 'Ver Evento',
+      'search_building': 'Buscar Edificio',
+      'create_event': 'Crear Evento (Admin)',
+      'update_event': 'Actualizar Evento (Admin)',
+      'delete_event': 'Eliminar Evento (Admin)',
+      'view_profile': 'Ver Perfil',
+      'update_profile': 'Actualizar Perfil'
+    };
+    return translations[action] || action?.replace('_', ' ').toUpperCase() || 'N/A';
+  };
+
+  // Función para truncar texto largo
+  const truncateText = (text, maxLength = 25) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  // Gráfico de actividad de usuarios (con nombres truncados para display)
   const activityChartData = userActivityData.map(item => ({
-    name: item.action?.replace('_', ' ').toUpperCase() || 'N/A',
+    name: translateAction(item.action),
+    nameDisplay: truncateText(translateAction(item.action), 20),
+    nameFull: translateAction(item.action),
     cantidad: item.count || 0,
     usuarios: item.uniqueUsersCount || 0
   }));
@@ -137,6 +163,8 @@ export function BigDataDashboardPage() {
     .slice(0, 10)
     .map(item => ({
       name: item.eventTitle || 'Evento sin título',
+      nameDisplay: truncateText(item.eventTitle || 'Evento sin título', 25),
+      nameFull: item.eventTitle || 'Evento sin título',
       vistas: item.totalViews || 0,
       visitantes: item.totalUniqueVisitors || 0
     }));
@@ -243,21 +271,26 @@ export function BigDataDashboardPage() {
 
       {/* Gráficos */}
       <div className="charts-grid">
-        {/* Gráfico de actividad de usuarios */}
+        {/* Gráfico de actividad de usuarios - Horizontal para mejor legibilidad */}
         <Card title="Actividad de Usuarios por Acción" className="chart-card">
           {activityChartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={activityChartData}>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={activityChartData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="name" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={100}
-                  interval={0}
+                <XAxis type="number" />
+                <YAxis 
+                  dataKey="nameDisplay" 
+                  type="category" 
+                  width={180}
+                  tick={{ fontSize: 12 }}
                 />
-                <YAxis />
-                <Tooltip />
+                <Tooltip 
+                  formatter={(value, name) => [value, name]}
+                  labelFormatter={(label) => {
+                    const fullName = activityChartData.find(item => item.nameDisplay === label)?.nameFull || label;
+                    return fullName;
+                  }}
+                />
                 <Legend />
                 <Bar dataKey="cantidad" fill="#0088FE" name="Total Acciones" />
                 <Bar dataKey="usuarios" fill="#00C49F" name="Usuarios Únicos" />
@@ -271,11 +304,16 @@ export function BigDataDashboardPage() {
         {/* Gráfico de edificios más visitados */}
         <Card title="Top 10 Edificios Más Visitados" className="chart-card">
           {topBuildingsData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={400}>
               <BarChart data={topBuildingsData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={150} />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={150}
+                  tick={{ fontSize: 12 }}
+                />
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="vistas" fill="#8884D8" name="Vistas Totales" />
@@ -287,37 +325,30 @@ export function BigDataDashboardPage() {
           )}
         </Card>
 
-        {/* Gráfico de eventos más populares */}
-        <Card title="Top 10 Eventos Más Populares" className="chart-card">
+        {/* Gráfico de eventos más populares - Cambiado a barras horizontales para mejor legibilidad */}
+        <Card title="Top 10 Eventos Más Populares" className="chart-card chart-card--fullwidth">
           {topEventsData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={topEventsData}>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={topEventsData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="name" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={100}
-                  interval={0}
+                <XAxis type="number" />
+                <YAxis 
+                  dataKey="nameDisplay" 
+                  type="category" 
+                  width={200}
+                  tick={{ fontSize: 11 }}
                 />
-                <YAxis />
-                <Tooltip />
+                <Tooltip 
+                  formatter={(value, name) => [value, name]}
+                  labelFormatter={(label) => {
+                    const fullName = topEventsData.find(item => item.nameDisplay === label)?.nameFull || label;
+                    return fullName;
+                  }}
+                />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="vistas" 
-                  stroke="#FF8042" 
-                  name="Vistas Totales"
-                  strokeWidth={2}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="visitantes" 
-                  stroke="#FFBB28" 
-                  name="Visitantes Únicos"
-                  strokeWidth={2}
-                />
-              </LineChart>
+                <Bar dataKey="vistas" fill="#FF8042" name="Vistas Totales" />
+                <Bar dataKey="visitantes" fill="#FFBB28" name="Visitantes Únicos" />
+              </BarChart>
             </ResponsiveContainer>
           ) : (
             <div className="no-data-message">No hay datos de eventos disponible</div>
@@ -341,7 +372,7 @@ export function BigDataDashboardPage() {
                 {userActivityData.length > 0 ? (
                   userActivityData.map((item, index) => (
                     <tr key={index}>
-                      <td>{item.action?.replace('_', ' ').toUpperCase() || 'N/A'}</td>
+                      <td>{translateAction(item.action)}</td>
                       <td>{item.count || 0}</td>
                       <td>{item.uniqueUsersCount || 0}</td>
                     </tr>
