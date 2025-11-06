@@ -21,9 +21,11 @@ Guía rápida para levantar todos los servicios del proyecto:
 
 El proyecto ahora incluye un módulo completo de **Big Data** que permite:
 - 📊 Recopilación automática de datos de uso
-- 📈 Dashboard interactivo en el panel de administración
+- 📈 Dashboard interactivo en el panel de administración con gráficos mejorados
 - 🔄 Procesamiento por lotes automatizado
 - 💾 Almacenamiento escalable en MongoDB Atlas
+- 🌐 Interfaz completamente en español con traducciones
+- 📊 Visualizaciones optimizadas (gráficos horizontales, nombres truncados)
 
 **Más información**: Ver `backend/README_BIG_DATA.md` y `backend/BIG_DATA_IMPLEMENTATION.md`
 
@@ -134,6 +136,32 @@ cd project; npm run dev
 
 ---
 
+## 🛠️ Scripts Útiles del Backend
+
+El backend incluye varios scripts para facilitar el desarrollo:
+
+```powershell
+cd backend
+
+# Generar datos ficticios de Big Data
+npm run generate-fake-data
+
+# Limpiar y regenerar datos de Big Data
+npm run generate-fake-data:clear
+
+# Generar eventos de ejemplo
+npm run generate-events
+
+# Cargar edificios desde GeoJSON
+npm run load-buildings
+
+# Crear/actualizar usuario administrador
+npm run create-admin
+
+# Verificar consistencia de datos
+npm run verify-consistency
+```
+
 ## Credenciales de administrador
 
 ### Usuario Administrador Principal
@@ -142,6 +170,12 @@ cd project; npm run dev
 
 **Nota**: Este usuario tiene acceso completo al panel de administración, incluyendo el Dashboard de Big Data.
 
+**Para crear/actualizar el usuario administrador:**
+```powershell
+cd backend
+npm run create-admin
+```
+
 ### Crear nuevos usuarios administradores
 Para crear un nuevo usuario administrador, usa el endpoint:
 - POST `http://<IP_LOCAL>:5000/api/auth/register`
@@ -149,7 +183,39 @@ Para crear un nuevo usuario administrador, usa el endpoint:
 
 **Endpoints útiles:**
 - POST `/auth/login` → `{ email, password }`
-- POST `/auth/register` → `{ email, password, role }` (usa `role: "administrador"`) 
+- POST `/auth/register` → `{ email, password, role }` (usa `role: "administrador"`)
+
+---
+
+## 📊 Configuración Inicial del Sistema
+
+### 1. Cargar Edificios
+Los edificios deben cargarse desde el archivo GeoJSON:
+```powershell
+cd backend
+npm run load-buildings
+```
+
+### 2. Generar Eventos de Ejemplo
+Para tener datos de prueba en el sistema:
+```powershell
+cd backend
+npm run generate-events
+```
+
+### 3. Generar Datos de Big Data
+Para visualizar el dashboard de Big Data con datos de ejemplo:
+```powershell
+cd backend
+npm run generate-fake-data:clear
+```
+
+### 4. Verificar Consistencia
+Para asegurar que todos los datos están sincronizados:
+```powershell
+cd backend
+npm run verify-consistency
+``` 
 
 ---
 
