@@ -18,7 +18,8 @@ Panel de administración web para gestionar eventos, edificios y visualizar anal
 - ✅ Gestión de eventos
 - ✅ Gestión de edificios
 - ✅ Calendario de eventos
-- ✅ **Dashboard de Big Data** (NUEVO)
+- ✅ **Dashboard de Big Data** - Visualización de analíticas y métricas
+- ✅ **Dashboard de Machine Learning** - Predicciones de asistencia, movilidad y saturaciones
 - ✅ Configuración de ajustes
 
 ## 🔧 Instalación
@@ -43,9 +44,10 @@ Crea un archivo `.env` en la raíz del proyecto:
 VITE_API_URL=http://localhost:5000/api
 ```
 
-## 📊 Dashboard de Big Data
+## 📊 Dashboards Disponibles
 
-Accede al dashboard de Big Data desde el menú lateral o directamente en:
+### Dashboard de Big Data
+Accede desde el menú lateral o directamente en:
 `http://localhost:5173/admin/bigdata`
 
 **Características:**
@@ -53,6 +55,22 @@ Accede al dashboard de Big Data desde el menú lateral o directamente en:
 - Métricas de edificios más visitados
 - Estadísticas de eventos populares
 - Gráficos interactivos con filtros de fecha
+- Gráficos horizontales optimizados
+- Interfaz completamente en español
+
+### Dashboard de Machine Learning
+Accede desde el menú lateral o directamente en:
+`http://localhost:5173/admin/ml`
+
+**Características:**
+- Estado del ML Service
+- Predicciones de asistencia a eventos
+- Predicciones de demanda de movilidad
+- Análisis de saturaciones con gráficos
+- Acciones rápidas para generar predicciones
+- Visualización de métricas de modelos
+
+**Nota**: El ML Service debe estar corriendo en `http://localhost:8000` para que el dashboard funcione completamente.
 
 ## Dmitry Estructura del Proyecto
 

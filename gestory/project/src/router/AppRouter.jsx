@@ -4,6 +4,7 @@ import { LoginPage } from '../ui/pages/LoginPage.jsx';
 import { AdminLayout } from '../ui/components/layout/AdminLayout.jsx';
 import { DashboardPage } from '../ui/pages/DashboardPage.jsx';
 import { BigDataDashboardPage } from '../ui/pages/BigDataDashboardPage.jsx';
+import { MLDashboardPage } from '../ui/pages/MLDashboardPage.jsx';
 import { EventosPage } from '../ui/pages/EventosPage.jsx';
 import { EdificiosPage } from '../ui/pages/EdificiosPage.jsx';
 import { CalendarioPage } from '../ui/pages/CalendarioPage.jsx';
@@ -24,6 +25,7 @@ export function AppRouter() {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="bigdata" element={<BigDataDashboardPage />} />
+          <Route path="ml" element={<MLDashboardPage />} />
           <Route path="eventos" element={<EventosPage />} />
           <Route path="edificios" element={<EdificiosPage />} />
           <Route path="calendario" element={<CalendarioPage />} />

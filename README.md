@@ -8,18 +8,21 @@ Guía rápida para levantar todos los servicios del proyecto:
 ---
 
 ## Requisitos
-- Node.js LTS 18+ y npm
+- **Node.js LTS 18+** y npm
+- **Python 3.8+** (para el servicio ML - opcional)
 - Acceso a la red local (mismo Wi‑Fi para PC y teléfono si se usa Expo Go)
-- Opcional: MongoDB si se usan datos persistentes
+- **MongoDB Atlas** o MongoDB local (recomendado: MongoDB Atlas)
 
 ## Estructura relevante
-- `backend/` → API (Express + MongoDB) con módulo Big Data
-- `gestory/project/` → Panel Admin (Vite) con Dashboard Big Data
+- `backend/` → API (Express + MongoDB) con módulo Big Data y Machine Learning
+- `backend/ml-service/` → Servicio ML (Python/FastAPI) para predicciones
+- `gestory/project/` → Panel Admin (Vite) con Dashboard Big Data y ML
 - `project/` → App móvil (Expo)
 
-## 🆕 Nueva Funcionalidad: Big Data
+## 🆕 Funcionalidades Principales
 
-El proyecto ahora incluye un módulo completo de **Big Data** que permite:
+### Big Data
+El proyecto incluye un módulo completo de **Big Data** que permite:
 - 📊 Recopilación automática de datos de uso
 - 📈 Dashboard interactivo en el panel de administración con gráficos mejorados
 - 🔄 Procesamiento por lotes automatizado
@@ -28,6 +31,16 @@ El proyecto ahora incluye un módulo completo de **Big Data** que permite:
 - 📊 Visualizaciones optimizadas (gráficos horizontales, nombres truncados)
 
 **Más información**: Ver `backend/README_BIG_DATA.md` y `backend/BIG_DATA_IMPLEMENTATION.md`
+
+### Machine Learning
+Servicio de **Machine Learning** implementado con:
+- 🤖 Predicción de asistencia a eventos
+- 🚶 Predicción de demanda de movilidad en edificios
+- 📊 Anticipación de saturaciones (Normal, Baja, Media, Alta)
+- 🔄 Re-entrenamiento automático de modelos
+- 📈 Dashboard ML integrado en el panel de administración
+
+**Más información**: Ver `backend/ml-service/README_ML_COMPLETO.md`
 
 ---
 
@@ -48,7 +61,10 @@ MONGO_URI=mongodb+srv://usuario:password@cluster.mongodb.net/innovatec
 PORT=5000
 ENABLE_BATCH_PROCESSING=true
 JWT_SECRET=tu_secret_jwt_aqui
+ML_SERVICE_URL=http://localhost:8000
 ```
+
+**Nota**: `ML_SERVICE_URL` es opcional. Si no está configurado, el sistema usará cálculos de fallback.
 
 ---
 
@@ -114,6 +130,45 @@ Pasos en el teléfono:
 
 ---
 
+## 4) Servicio ML (Python/FastAPI) - Opcional
+Ruta: `backend/ml-service/`
+
+**Requisitos previos:**
+- Python 3.8+ instalado
+- Entorno virtual creado
+
+**Instalación e inicio:**
+```powershell
+cd backend/ml-service
+python -m venv venv
+venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+```
+
+**Configurar `.env` en `backend/ml-service/`:**
+```dotenv
+MONGO_URI=mongodb+srv://usuario:password@cluster.mongodb.net/innovatec
+ML_PORT=8000
+ML_HOST=0.0.0.0
+```
+
+**Entrenar modelos:**
+```powershell
+python train_all_models.py
+```
+
+**Iniciar servicio:**
+```powershell
+python main.py
+```
+
+El servicio estará disponible en: `http://localhost:8000`
+- Documentación API: `http://localhost:8000/docs`
+
+**Más información**: Ver `backend/ml-service/README_ML_COMPLETO.md`
+
+---
+
 ## Comandos de referencia
 Backend:
 ```powershell
@@ -127,12 +182,23 @@ Expo (móvil):
 ```powershell
 cd project; npm run dev
 ```
+ML Service:
+```powershell
+cd backend/ml-service; venv\Scripts\activate; python main.py
+```
+
+**Script para iniciar todos los servicios:**
+```powershell
+.\start-all-services.ps1
+```
 
 ---
 
 ## Notas
 - Panel Admin probado en `http://localhost:5173`.
 - Expo Go requiere que teléfono y PC estén en la misma red.
+- El servicio ML es opcional. Si no está corriendo, el sistema usará cálculos de fallback.
+- Para usar todas las funcionalidades, se recomienda tener MongoDB Atlas configurado.
 
 ---
 

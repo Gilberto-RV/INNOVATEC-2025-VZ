@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { 
-  BarChart3, 
   Users, 
   Building2, 
   Calendar, 
   TrendingUp,
-  Activity,
   RefreshCw,
   Filter
 } from 'lucide-react';
@@ -112,26 +110,8 @@ export function BigDataDashboardPage() {
   }
 
   // Preparar datos para gráficos
-  const userActivityData = dashboardData?.userActivity || [];
   const buildingStats = dashboardData?.buildings || [];
   const eventStats = dashboardData?.events || [];
-
-  // Función para traducir acciones a español
-  const translateAction = (action) => {
-    const translations = {
-      'login': 'Iniciar Sesión',
-      'logout': 'Cerrar Sesión',
-      'view_building': 'Ver Edificio',
-      'view_event': 'Ver Evento',
-      'search_building': 'Buscar Edificio',
-      'create_event': 'Crear Evento (Admin)',
-      'update_event': 'Actualizar Evento (Admin)',
-      'delete_event': 'Eliminar Evento (Admin)',
-      'view_profile': 'Ver Perfil',
-      'update_profile': 'Actualizar Perfil'
-    };
-    return translations[action] || action?.replace('_', ' ').toUpperCase() || 'N/A';
-  };
 
   // Función para truncar texto largo
   const truncateText = (text, maxLength = 25) => {
@@ -139,15 +119,6 @@ export function BigDataDashboardPage() {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   };
-
-  // Gráfico de actividad de usuarios (con nombres truncados para display)
-  const activityChartData = userActivityData.map(item => ({
-    name: translateAction(item.action),
-    nameDisplay: truncateText(translateAction(item.action), 20),
-    nameFull: translateAction(item.action),
-    cantidad: item.count || 0,
-    usuarios: item.uniqueUsersCount || 0
-  }));
 
   // Gráfico de edificios más visitados (top 10)
   const topBuildingsData = buildingStats
@@ -169,25 +140,35 @@ export function BigDataDashboardPage() {
       visitantes: item.totalUniqueVisitors || 0
     }));
 
-  // Gráfico circular por rol de usuarios
-  const roleDistributionData = userActivityData.reduce((acc, item) => {
-    // Simplificado - en producción deberías tener datos más específicos
-    return acc;
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const totalUserActions = userActivityData.reduce((sum, item) => sum + (item.count || 0), 0);
+  // Calcular totales
   const totalBuildingViews = buildingStats.reduce((sum, item) => sum + (item.totalViews || 0), 0);
+  const totalUniqueBuildingVisitors = buildingStats.reduce((sum, item) => sum + (item.totalUniqueVisitors || 0), 0);
   const totalEventViews = eventStats.reduce((sum, item) => sum + (item.totalViews || 0), 0);
-  const totalUniqueUsers = new Set(
-    userActivityData.flatMap(item => item.uniqueUsers || [])
-  ).size;
+  const totalUniqueEventVisitors = eventStats.reduce((sum, item) => sum + (item.totalUniqueVisitors || 0), 0);
+  
+  // Calcular horas pico de edificios
+  const calculatePeakHours = () => {
+    const hourCounts = Array(24).fill(0);
+    buildingStats.forEach(building => {
+      if (building.peakHours && Array.isArray(building.peakHours)) {
+        building.peakHours.forEach(ph => {
+          if (ph.hour >= 0 && ph.hour < 24) {
+            hourCounts[ph.hour] += ph.count || 0;
+          }
+        });
+      }
+    });
+    return hourCounts.map((count, hour) => ({ hour, count }));
+  };
+  
+  const peakHoursData = calculatePeakHours();
 
   return (
     <div className="bigdata-dashboard-page">
       <div className="page-header">
         <div>
           <h1>Dashboard de Big Data</h1>
-          <p>Análisis y visualización de datos del sistema</p>
+          <p>Métricas de edificios y analíticas de eventos</p>
         </div>
         <div className="header-actions">
           <Button 
@@ -220,30 +201,6 @@ export function BigDataDashboardPage() {
 
       {/* Tarjetas de resumen */}
       <div className="stats-grid">
-        <Card className="stat-card stat-card--blue">
-          <div className="stat-content">
-            <div className="stat-icon">
-              <Activity size={24} />
-            </div>
-            <div className="stat-info">
-              <h3 className="stat-value">{totalUserActions.toLocaleString()}</h3>
-              <p className="stat-title">Acciones de Usuarios</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="stat-card stat-card--green">
-          <div className="stat-content">
-            <div className="stat-icon">
-              <Users size={24} />
-            </div>
-            <div className="stat-info">
-              <h3 className="stat-value">{totalUniqueUsers}</h3>
-              <p className="stat-title">Usuarios Únicos</p>
-            </div>
-          </div>
-        </Card>
-
         <Card className="stat-card stat-card--purple">
           <div className="stat-content">
             <div className="stat-icon">
@@ -256,6 +213,18 @@ export function BigDataDashboardPage() {
           </div>
         </Card>
 
+        <Card className="stat-card stat-card--blue">
+          <div className="stat-content">
+            <div className="stat-icon">
+              <Users size={24} />
+            </div>
+            <div className="stat-info">
+              <h3 className="stat-value">{totalUniqueBuildingVisitors.toLocaleString()}</h3>
+              <p className="stat-title">Visitantes Únicos (Edificios)</p>
+            </div>
+          </div>
+        </Card>
+
         <Card className="stat-card stat-card--orange">
           <div className="stat-content">
             <div className="stat-icon">
@@ -263,7 +232,19 @@ export function BigDataDashboardPage() {
             </div>
             <div className="stat-info">
               <h3 className="stat-value">{totalEventViews.toLocaleString()}</h3>
-              <p className="stat-title">Vistas de Eventos</p>
+              <p className="stat-title">Visualizaciones de Eventos</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="stat-card stat-card--green">
+          <div className="stat-content">
+            <div className="stat-icon">
+              <TrendingUp size={24} />
+            </div>
+            <div className="stat-info">
+              <h3 className="stat-value">{totalUniqueEventVisitors.toLocaleString()}</h3>
+              <p className="stat-title">Visitantes Únicos (Eventos)</p>
             </div>
           </div>
         </Card>
@@ -271,36 +252,6 @@ export function BigDataDashboardPage() {
 
       {/* Gráficos */}
       <div className="charts-grid">
-        {/* Gráfico de actividad de usuarios - Horizontal para mejor legibilidad */}
-        <Card title="Actividad de Usuarios por Acción" className="chart-card">
-          {activityChartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={activityChartData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis 
-                  dataKey="nameDisplay" 
-                  type="category" 
-                  width={180}
-                  tick={{ fontSize: 12 }}
-                />
-                <Tooltip 
-                  formatter={(value, name) => [value, name]}
-                  labelFormatter={(label) => {
-                    const fullName = activityChartData.find(item => item.nameDisplay === label)?.nameFull || label;
-                    return fullName;
-                  }}
-                />
-                <Legend />
-                <Bar dataKey="cantidad" fill="#0088FE" name="Total Acciones" />
-                <Bar dataKey="usuarios" fill="#00C49F" name="Usuarios Únicos" />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="no-data-message">No hay datos de actividad disponible</div>
-          )}
-        </Card>
-
         {/* Gráfico de edificios más visitados */}
         <Card title="Top 10 Edificios Más Visitados" className="chart-card">
           {topBuildingsData.length > 0 ? (
@@ -326,7 +277,7 @@ export function BigDataDashboardPage() {
         </Card>
 
         {/* Gráfico de eventos más populares - Cambiado a barras horizontales para mejor legibilidad */}
-        <Card title="Top 10 Eventos Más Populares" className="chart-card chart-card--fullwidth">
+        <Card title="Top 10 Eventos Más Populares" className="chart-card">
           {topEventsData.length > 0 ? (
             <ResponsiveContainer width="100%" height={400}>
               <BarChart data={topEventsData} layout="vertical">
@@ -346,7 +297,7 @@ export function BigDataDashboardPage() {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="vistas" fill="#FF8042" name="Vistas Totales" />
+                <Bar dataKey="vistas" fill="#FF8042" name="Visualizaciones" />
                 <Bar dataKey="visitantes" fill="#FFBB28" name="Visitantes Únicos" />
               </BarChart>
             </ResponsiveContainer>
@@ -354,39 +305,35 @@ export function BigDataDashboardPage() {
             <div className="no-data-message">No hay datos de eventos disponible</div>
           )}
         </Card>
+
+        {/* Gráfico de horas pico de edificios */}
+        <Card title="Horas Pico de Visitas a Edificios" className="chart-card">
+          {peakHoursData.some(h => h.count > 0) ? (
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={peakHoursData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="hour" 
+                  label={{ value: 'Hora del día', position: 'insideBottom', offset: -5 }}
+                  tickFormatter={(hour) => `${hour}:00`}
+                />
+                <YAxis label={{ value: 'Visitas', angle: -90, position: 'insideLeft' }} />
+                <Tooltip 
+                  formatter={(value) => [value, 'Visitas']}
+                  labelFormatter={(hour) => `Hora: ${hour}:00`}
+                />
+                <Legend />
+                <Bar dataKey="count" fill="#8884D8" name="Total de Visitas" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="no-data-message">No hay datos de horas pico disponible</div>
+          )}
+        </Card>
       </div>
 
       {/* Tablas de datos */}
       <div className="tables-grid">
-        <Card title="Resumen de Actividad de Usuarios" className="table-card">
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Acción</th>
-                  <th>Total</th>
-                  <th>Usuarios Únicos</th>
-                </tr>
-              </thead>
-              <tbody>
-                {userActivityData.length > 0 ? (
-                  userActivityData.map((item, index) => (
-                    <tr key={index}>
-                      <td>{translateAction(item.action)}</td>
-                      <td>{item.count || 0}</td>
-                      <td>{item.uniqueUsersCount || 0}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" className="no-data">No hay datos disponibles</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
         <Card title="Resumen de Edificios" className="table-card">
           <div className="table-container">
             <table>
@@ -396,16 +343,60 @@ export function BigDataDashboardPage() {
                   <th>Vistas Totales</th>
                   <th>Visitantes Únicos</th>
                   <th>Duración Promedio</th>
+                  <th>Hora Pico</th>
                 </tr>
               </thead>
               <tbody>
                 {buildingStats.length > 0 ? (
-                  buildingStats.slice(0, 10).map((item, index) => (
+                  buildingStats.slice(0, 15).map((item, index) => {
+                    // Encontrar la hora pico del edificio
+                    let peakHour = 'N/A';
+                    if (item.peakHours && Array.isArray(item.peakHours) && item.peakHours.length > 0) {
+                      const maxPeak = item.peakHours.reduce((max, ph) => 
+                        (ph.count || 0) > (max.count || 0) ? ph : max, item.peakHours[0]
+                      );
+                      peakHour = `${maxPeak.hour}:00`;
+                    }
+                    
+                    return (
+                      <tr key={index}>
+                        <td>{item.buildingName || 'N/A'}</td>
+                        <td>{item.totalViews || 0}</td>
+                        <td>{item.totalUniqueVisitors || 0}</td>
+                        <td>{item.avgViewDuration ? `${Math.round(item.avgViewDuration)}s` : 'N/A'}</td>
+                        <td>{peakHour}</td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="no-data">No hay datos disponibles</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        <Card title="Resumen de Eventos por Popularidad" className="table-card">
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Evento</th>
+                  <th>Visualizaciones</th>
+                  <th>Visitantes Únicos</th>
+                  <th>Score de Popularidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {eventStats.length > 0 ? (
+                  eventStats.slice(0, 15).map((item, index) => (
                     <tr key={index}>
-                      <td>{item.buildingName || 'N/A'}</td>
+                      <td>{truncateText(item.eventTitle || 'Evento sin título', 40)}</td>
                       <td>{item.totalViews || 0}</td>
                       <td>{item.totalUniqueVisitors || 0}</td>
-                      <td>{item.avgViewDuration ? `${Math.round(item.avgViewDuration)}s` : 'N/A'}</td>
+                      <td>{item.popularityScore ? Math.round(item.popularityScore) : 'N/A'}</td>
                     </tr>
                   ))
                 ) : (

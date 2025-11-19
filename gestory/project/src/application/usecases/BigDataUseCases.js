@@ -19,19 +19,6 @@ export class BigDataUseCases {
   }
 
   /**
-   * Obtener estadísticas de usuarios
-   */
-  async getUserActivityStats(filters = {}) {
-    try {
-      const result = await this.repository.getUserActivityStats(filters);
-      return result.data;
-    } catch (error) {
-      console.error('Error obteniendo estadísticas de usuarios:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Obtener estadísticas de edificios
    */
   async getBuildingStats(filters = {}) {
