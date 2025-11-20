@@ -229,33 +229,22 @@ El sistema permite a los usuarios visualizar edificios en un mapa interactivo, c
 
 ---
 
-### 7. Servicio de Machine Learning
+### 7. Servicio de Machine Learning (Planificado)
 
-#### Funcionalidades Implementadas:
-- ✅ **Predicción de asistencia a eventos** - Estima cuántas personas asistirán a un evento
-- ✅ **Predicción de demanda de movilidad** - Predice la demanda de movilidad en edificios/áreas
-- ✅ **Anticipación de saturaciones** - Predice niveles de saturación (Normal, Baja, Media, Alta)
-- ✅ **Re-entrenamiento de modelos** - Capacidad de re-entrenar modelos con nuevos datos
-- ✅ **Dashboard ML integrado** - Visualización de predicciones en el panel de administración
+#### Funcionalidades Planificadas:
+- 🔄 **Predicción de asistencia a eventos** (Fase 1)
+- 🔄 **Sistema de recomendaciones de edificios** (Fase 2)
+- 🔄 **Clasificación de popularidad de eventos** (Fase 3)
 
-#### Arquitectura Implementada:
-- Microservicio Python con FastAPI (puerto 8000)
-- Modelos: Regresión Lineal, Random Forest Regressor, Random Forest Classifier
-- Entrenamiento manual y automático disponible
-- API REST para predicciones en tiempo real
-- Integración completa con backend Node.js
-
-#### Características Técnicas:
-- Extracción automática de datos desde MongoDB
-- Generación de datos sintéticos si no hay suficientes datos reales
-- Modelos guardados en formato `.pkl` con metadata JSON
-- Fallback a cálculos simples si el servicio ML no está disponible
-- Documentación interactiva con Swagger UI
+#### Arquitectura Propuesta:
+- Microservicio Python con FastAPI
+- Modelos: Regresión Lineal, Random Forest, Collaborative Filtering
+- Entrenamiento periódico automático
+- API REST para predicciones
 
 #### Estado Actual:
-- ✅ **Implementado y funcional**
-- Ubicación: `backend/ml-service/`
-- Documentación: `backend/ml-service/README_ML_COMPLETO.md`
+- ⚠️ **No implementado** - Solo planificado en `ML_IMPLEMENTATION_PLAN.md`
+- Estructura de directorio `ml-service/` existe pero no funcional
 
 ---
 
@@ -273,11 +262,11 @@ El sistema permite a los usuarios visualizar edificios en un mapa interactivo, c
 7. **Aplicación móvil** básica funcional
 
 #### 🔄 En Desarrollo/Planificado:
-1. **Notificaciones push** para eventos
-2. **Sistema de reservas** para eventos
-3. **Navegación paso a paso** mejorada
-4. **Modo offline** para la app móvil
-5. **Re-entrenamiento automático** de modelos ML (actualmente manual)
+1. **Machine Learning** para predicciones
+2. **Notificaciones push** para eventos
+3. **Sistema de reservas** para eventos
+4. **Navegación paso a paso** mejorada
+5. **Modo offline** para la app móvil
 
 #### ❌ Fuera del Alcance Actual:
 1. Integración con sistemas externos (ERP, SIS)
@@ -416,15 +405,12 @@ El sistema permite a los usuarios visualizar edificios en un mapa interactivo, c
 - **Axios** 1.11.0 - Cliente HTTP
 - **React Navigation** - Navegación nativa
 
-### Machine Learning
-- **Python 3.8+** - Lenguaje
+### Machine Learning (Planificado)
+- **Python** - Lenguaje
 - **FastAPI** - Framework API
-- **scikit-learn** - Librería ML (Regresión, Clasificación)
+- **scikit-learn** - Librería ML
 - **pandas** - Manipulación de datos
 - **numpy** - Cálculos numéricos
-- **pymongo** - Conexión a MongoDB
-- **joblib** - Serialización de modelos
-- **uvicorn** - Servidor ASGI
 
 ---
 
@@ -537,13 +523,12 @@ El sistema permite a los usuarios visualizar edificios en un mapa interactivo, c
 6. ✅ Mejorar manejo de errores
 
 ### Mediano Plazo (3-6 meses)
-1. 🔄 Re-entrenamiento automático de modelos ML
+1. 🔄 Implementar Machine Learning (Fase 1: Predicción de asistencia)
 2. 🔄 Agregar notificaciones push
 3. 🔄 Implementar sistema de reservas
 4. 🔄 Mejorar navegación con paso a paso
 5. 🔄 Agregar modo offline
 6. 🔄 Implementar CI/CD
-7. 🔄 Sistema de recomendaciones de edificios (ML avanzado)
 
 ### Largo Plazo (6+ meses)
 1. 🔮 Microservicios (separar Big Data, ML, Auth)
@@ -584,10 +569,8 @@ El sistema permite a los usuarios visualizar edificios en un mapa interactivo, c
 Para más información sobre el proyecto, consultar:
 - `README.md` - Guía rápida de inicio
 - `backend/README_BIG_DATA.md` - Documentación de Big Data
-- `backend/BIG_DATA_IMPLEMENTATION.md` - Guía de implementación de Big Data
-- `backend/ml-service/README_ML_COMPLETO.md` - Documentación completa del ML Service
-- `backend/ml-service/INSTALLACION_WINDOWS.md` - Guía de instalación en Windows
-- `backend/MONGODB_ATLAS_SETUP.md` - Configuración de MongoDB Atlas
+- `backend/BIG_DATA_IMPLEMENTATION.md` - Guía de implementación
+- `backend/ML_IMPLEMENTATION_PLAN.md` - Plan de Machine Learning
 
 ---
 

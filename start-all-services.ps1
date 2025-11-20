@@ -81,7 +81,15 @@ if (-not (Test-Path ".env")) {
     Write-Host "   PORT=5000" -ForegroundColor Yellow
     Write-Host "   ENABLE_BATCH_PROCESSING=true" -ForegroundColor Yellow
     Write-Host "   JWT_SECRET=tu_secret_jwt_aqui" -ForegroundColor Yellow
+    Write-Host "   ML_SERVICE_URL=http://localhost:8000" -ForegroundColor Yellow
     Write-Host ""
+} else {
+    # Verificar si ML_SERVICE_URL está en .env
+    $envContent = Get-Content ".env" -Raw -ErrorAction SilentlyContinue
+    if ($envContent -and $envContent -notmatch "ML_SERVICE_URL") {
+        Write-Host "[INFO] Agregando ML_SERVICE_URL al archivo .env..." -ForegroundColor Cyan
+        Add-Content -Path ".env" -Value "`nML_SERVICE_URL=http://localhost:8000" -NoNewline
+    }
 }
 
 $backendCommand = "cd '$backendPath'; Write-Host '[BACKEND] Puerto 5000' -ForegroundColor Green; npm run dev"
@@ -141,44 +149,43 @@ $appCommand = "cd '$appPath'; Write-Host '[APP MOVIL] Expo' -ForegroundColor Gre
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $appCommand -WindowStyle Normal
 Set-Location $rootPath
 
-# 4. SERVICIO ML (Python/FastAPI) - Opcional
-Write-Host ""
-Write-Host "Deseas iniciar el Servicio ML (Python)? (S/N): " -ForegroundColor Cyan -NoNewline
-$startML = Read-Host
+# 4. SERVICIO ML (Python/FastAPI)
+Write-Host "[INICIANDO] Servicio ML (Python/FastAPI)..." -ForegroundColor Green
+$mlPath = Join-Path $rootPath "backend\ml-service"
+Set-Location $mlPath
 
-if ($startML -eq "S" -or $startML -eq "s" -or $startML -eq "Y" -or $startML -eq "y") {
-    Write-Host "[INICIANDO] Servicio ML (Python/FastAPI)..." -ForegroundColor Green
-    $mlPath = Join-Path $rootPath "backend\ml-service"
-    Set-Location $mlPath
-    
-    # Verificar si existe el entorno virtual
-    if (-not (Test-Path "venv\Scripts\activate.bat")) {
-        Write-Host "[ADVERTENCIA] Entorno virtual no encontrado." -ForegroundColor Yellow
-        Write-Host "   Ejecuta primero:" -ForegroundColor Yellow
-        Write-Host "   python -m venv venv" -ForegroundColor Yellow
-        Write-Host "   venv\Scripts\activate" -ForegroundColor Yellow
-        Write-Host "   pip install -r requirements.txt" -ForegroundColor Yellow
-        Write-Host ""
-        Set-Location $rootPath
-    } else {
-        # Verificar si existe .env
-        if (-not (Test-Path ".env")) {
-            Write-Host "[ADVERTENCIA] Archivo .env no encontrado en backend\ml-service\" -ForegroundColor Yellow
-            Write-Host "   Crea un archivo .env con:" -ForegroundColor Yellow
-            Write-Host "   MONGO_URI=mongodb+srv://usuario:password@cluster.mongodb.net/innovatec" -ForegroundColor Yellow
-            Write-Host "   ML_PORT=8000" -ForegroundColor Yellow
-            Write-Host "   ML_HOST=0.0.0.0" -ForegroundColor Yellow
-            Write-Host ""
-        }
-        
-        $mlCommand = "cd '$mlPath'; Write-Host '[ML SERVICE] Puerto 8000' -ForegroundColor Green; .\venv\Scripts\activate; python main.py"
-        Start-Process powershell -ArgumentList "-NoExit", "-Command", $mlCommand -WindowStyle Normal
-        Set-Location $rootPath
-        Start-Sleep -Seconds 3
-        Wait-ForService -Port 8000 -ServiceName "Servicio ML"
-    }
+# Verificar si existe el entorno virtual
+if (-not (Test-Path "venv\Scripts\Activate.ps1")) {
+    Write-Host "[ADVERTENCIA] Entorno virtual no encontrado." -ForegroundColor Yellow
+    Write-Host "   Ejecuta primero:" -ForegroundColor Yellow
+    Write-Host "   python -m venv venv" -ForegroundColor Yellow
+    Write-Host "   .\venv\Scripts\Activate.ps1" -ForegroundColor Yellow
+    Write-Host "   pip install -r requirements.txt" -ForegroundColor Yellow
+    Write-Host ""
+    Set-Location $rootPath
 } else {
-    Write-Host "[SALTANDO] Servicio ML" -ForegroundColor Yellow
+    # Verificar si existe .env
+    if (-not (Test-Path ".env")) {
+        Write-Host "[ADVERTENCIA] Archivo .env no encontrado en backend\ml-service\" -ForegroundColor Yellow
+        Write-Host "   Crea un archivo .env con:" -ForegroundColor Yellow
+        Write-Host "   MONGO_URI=mongodb+srv://usuario:password@cluster.mongodb.net/innovatec" -ForegroundColor Yellow
+        Write-Host "   ML_PORT=8000" -ForegroundColor Yellow
+        Write-Host "   ML_HOST=0.0.0.0" -ForegroundColor Yellow
+        Write-Host ""
+    }
+    
+    # Verificar si los modelos existen
+    if (-not (Test-Path "models\attendance_predictor.pkl")) {
+        Write-Host "[ENTRENANDO] Modelos ML..." -ForegroundColor Yellow
+        & ".\venv\Scripts\python.exe" train_all_models.py
+        Write-Host ""
+    }
+    
+    $mlCommand = "cd '$mlPath'; Write-Host '[ML SERVICE] Puerto 8000' -ForegroundColor Green; .\venv\Scripts\Activate.ps1; python main.py"
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", $mlCommand -WindowStyle Normal
+    Set-Location $rootPath
+    Start-Sleep -Seconds 5
+    Wait-ForService -Port 8000 -ServiceName "Servicio ML"
 }
 
 # Resumen
@@ -191,10 +198,8 @@ Write-Host "Servicios disponibles:" -ForegroundColor White
 Write-Host "   - Backend API:        http://localhost:5000" -ForegroundColor Cyan
 Write-Host "   - Panel Admin:        http://localhost:5173" -ForegroundColor Cyan
 Write-Host "   - App Movil (Expo):   Escanea el QR en la ventana de Expo" -ForegroundColor Cyan
-if ($startML -eq "S" -or $startML -eq "s" -or $startML -eq "Y" -or $startML -eq "y") {
-    Write-Host "   - Servicio ML:        http://localhost:8000" -ForegroundColor Cyan
-    Write-Host "   - ML Docs (Swagger):  http://localhost:8000/docs" -ForegroundColor Cyan
-}
+Write-Host "   - Servicio ML:        http://localhost:8000" -ForegroundColor Cyan
+Write-Host "   - ML Docs (Swagger):  http://localhost:8000/docs" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Credenciales de administrador:" -ForegroundColor White
 Write-Host "   - Email:    test@gmail.com" -ForegroundColor Yellow
