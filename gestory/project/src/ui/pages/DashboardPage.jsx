@@ -23,24 +23,45 @@ export function DashboardPage() {
 
   const loadDashboardData = async () => {
     try {
-      const [eventosStats, buildings] = await Promise.all([
-        eventoUseCases.getEstadisticas(),
+      const [events, buildings] = await Promise.all([
+        eventoUseCases.getAllEvents(),
         buildingUseCases.getAllBuildings()
       ]);
 
-      // Debug para verificar disponibilidad
-      buildings.forEach(b => console.log(b.name, b.availability, b.isDisponible()));
+      // Calcular estadísticas de eventos
+      const now = new Date();
+      const eventosProximos = events.filter(event => {
+        if (!event.date_time) return false;
+        const eventDate = new Date(event.date_time);
+        return eventDate >= now && event.status !== 'cancelado';
+      });
 
-      const buildingsDisponibles = buildingUseCases.getBuildingDisponibles(buildings);
+      // Calcular ocupación promedio (eventos activos vs totales)
+      const eventosActivos = events.filter(e => e.status === 'en_curso' || e.status === 'programado');
+      const ocupacionPromedio = events.length > 0 
+        ? Math.round((eventosActivos.length / events.length) * 100) 
+        : 0;
+
+      // Obtener edificios disponibles
+      const buildingsDisponibles = buildings.filter(b => 
+        b.availability === true || b.availability === 'true' || b.isDisponible?.() === true
+      );
 
       setStats({
-        totalEventos: eventosStats.total || 0,
-        eventosProximos: eventosStats.proximos || 0,
-        buildingsDisponibles: buildingsDisponibles.length,
-        ocupacionPromedio: eventosStats.ocupacionPromedio || 0
+        totalEventos: events.length || 0,
+        eventosProximos: eventosProximos.length || 0,
+        buildingsDisponibles: buildingsDisponibles.length || 0,
+        ocupacionPromedio: ocupacionPromedio || 0
       });
     } catch (error) {
       console.error('Error cargando datos del dashboard:', error);
+      // En caso de error, usar valores por defecto
+      setStats({
+        totalEventos: 0,
+        eventosProximos: 0,
+        buildingsDisponibles: 0,
+        ocupacionPromedio: 0
+      });
     } finally {
       setLoading(false);
     }

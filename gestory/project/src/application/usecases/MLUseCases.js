@@ -50,9 +50,17 @@ export class MLUseCases {
   async getSaturationPrediction(type, id, date = null) {
     try {
       const result = await this.repository.getSaturationPrediction(type, id, date);
+      // Verificar que la respuesta sea exitosa y tenga datos
+      if (!result || !result.data) {
+        throw new Error('No se pudo obtener la predicción de saturación');
+      }
       return result.data;
     } catch (error) {
-      console.error('Error obteniendo predicción de saturación:', error);
+      // Re-lanzar el error para que el componente pueda manejarlo
+      // No registrar errores 404 aquí, se manejan en el componente
+      if (error?.response?.status !== 404 && error?.status !== 404) {
+        console.error('Error obteniendo predicción de saturación:', error.message);
+      }
       throw error;
     }
   }

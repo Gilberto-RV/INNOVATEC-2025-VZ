@@ -1,0 +1,175 @@
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .skeleton-line {
+    height: 12px;
+    background: linear-gradient(
+      90deg,
+      #f0f0f0 0px,
+      #e0e0e0 40px,
+      #f0f0f0 80px
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.skeleton-title {
+      height: 20px;
+      width: 60%;
+    }
+
+    &.skeleton-large {
+      height: 32px;
+      width: 80%;
+    }
+
+    &.skeleton-medium {
+      height: 16px;
+      width: 100%;
+    }
+
+    &.skeleton-small {
+      height: 12px;
+      width: 50%;
+    }
+  }
+}
+
+.skeleton-container {
+  display: grid;
+  gap: 1rem;
+}
+
+.skeleton-card {
+  padding: 1.5rem;
+  border: 1px solid #dee2e6;
+
+  .skeleton-header {
+    margin-bottom: 1rem;
+  }
+
+  .skeleton-content {
+    margin-top: 1rem;
+  }
+}
+
+.skeleton-stat {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #dee2e6;
+
+  .skeleton-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: linear-gradient(
+      90deg,
+      #f0f0f0 0px,
+      #e0e0e0 40px,
+      #f0f0f0 80px
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+    flex-shrink: 0;
+  }
+
+  .skeleton-info {
+    flex: 1;
+
+    .skeleton-large {
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+.skeleton-table {
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+
+  .skeleton-table-header {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #dee2e6;
+
+    .skeleton-header-cell {
+      height: 16px;
+      margin-bottom: 0;
+    }
+  }
+
+  .skeleton-table-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .skeleton-cell {
+      height: 12px;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.skeleton-chart {
+  padding: 1.5rem;
+  border: 1px solid #dee2e6;
+
+  .skeleton-title {
+    margin-bottom: 1rem;
+  }
+
+  .skeleton-chart-area {
+    height: 300px;
+    background: linear-gradient(
+      90deg,
+      #f0f0f0 0px,
+      #e0e0e0 40px,
+      #f0f0f0 80px
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+    border-radius: 4px;
+  }
+}
+
+.skeleton-default {
+  padding: 1rem;
+
+  .skeleton-line {
+    &:nth-child(1) {
+      width: 100%;
+    }
+    &:nth-child(2) {
+      width: 80%;
+    }
+    &:nth-child(3) {
+      width: 60%;
+    }
+  }
+}
+

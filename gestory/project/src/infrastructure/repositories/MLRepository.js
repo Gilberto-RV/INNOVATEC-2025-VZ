@@ -42,8 +42,27 @@ export class MLRepository {
     const queryString = params.toString();
     const url = `/bigdata/predict/saturation/${type}/${id}${queryString ? `?${queryString}` : ''}`;
     
-    const response = await httpClient.get(url);
-    return response.data;
+    try {
+      const response = await httpClient.get(url);
+      // Verificar que la respuesta tenga éxito y datos
+      if (response?.data?.success === false) {
+        const error = new Error(response.data.message || 'No se pudo obtener la predicción');
+        error.status = response.status || 404;
+        error.response = { status: response.status || 404, data: response.data };
+        throw error;
+      }
+      return response.data;
+    } catch (error) {
+      // Si es un error 404 (Axios), preservar el status para que el componente lo maneje silenciosamente
+      if (error?.response?.status === 404 || error?.status === 404) {
+        const notFoundError = new Error(error.response?.data?.message || 'Edificio/Evento no encontrado');
+        notFoundError.status = 404;
+        notFoundError.response = error.response || { status: 404, data: { message: 'No encontrado' } };
+        throw notFoundError;
+      }
+      // Para otros errores, re-lanzar normalmente
+      throw error;
+    }
   }
 
   /**

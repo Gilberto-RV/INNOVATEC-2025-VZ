@@ -1,0 +1,99 @@
+.comparison-chart {
+  width: 100%;
+  padding: 1rem;
+
+  .chart-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .comparison-chart-empty {
+    padding: 3rem;
+    text-align: center;
+    color: #999;
+    font-size: 0.9rem;
+  }
+
+  .comparison-tooltip {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .tooltip-date {
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+      color: #1a1a1a;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 0.5rem;
+    }
+
+    .tooltip-predicted {
+      margin: 0.25rem 0;
+      color: #8884d8;
+      
+      strong {
+        color: #6667ab;
+      }
+    }
+
+    .tooltip-actual {
+      margin: 0.25rem 0;
+      color: #82ca9d;
+      
+      strong {
+        color: #4caf7a;
+      }
+    }
+
+    .tooltip-difference {
+      margin: 0.25rem 0;
+      font-weight: 600;
+
+      &.positive {
+        color: #00C49F;
+      }
+
+      &.negative {
+        color: #FF8042;
+      }
+    }
+
+    .tooltip-error {
+      margin: 0.25rem 0 0 0;
+      font-size: 0.85rem;
+      color: #666;
+    }
+  }
+
+  .comparison-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-top: 2px solid #dee2e6;
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .stat-label {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      .stat-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+    }
+  }
+}
+

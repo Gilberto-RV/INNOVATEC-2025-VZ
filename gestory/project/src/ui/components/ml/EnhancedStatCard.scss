@@ -1,0 +1,109 @@
+.stat-card {
+  .stat-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.05);
+      flex-shrink: 0;
+    }
+
+    .stat-info {
+      flex: 1;
+      min-width: 0;
+
+      .stat-header {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+        margin-bottom: 0.25rem;
+
+        .stat-value {
+          font-size: 2rem;
+          font-weight: 700;
+          margin: 0;
+          color: #1a1a1a;
+          line-height: 1;
+        }
+
+        .trend-indicator {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.125rem 0.5rem;
+          border-radius: 4px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          line-height: 1;
+
+          &.up {
+            color: #00C49F;
+            background: rgba(0, 196, 159, 0.1);
+          }
+
+          &.down {
+            color: #FF8042;
+            background: rgba(255, 128, 66, 0.1);
+          }
+
+          &.neutral {
+            color: #888;
+            background: rgba(136, 136, 136, 0.1);
+          }
+
+          .trend-percentage {
+            font-size: 0.75rem;
+          }
+        }
+      }
+
+      .stat-title {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0.25rem 0 0 0;
+        font-weight: 500;
+      }
+
+      .stat-comparison {
+        font-size: 0.75rem;
+        color: #999;
+        margin: 0.25rem 0 0 0;
+      }
+
+      .stat-subtitle {
+        font-size: 0.8rem;
+        color: #888;
+        margin: 0.25rem 0 0 0;
+        font-style: italic;
+      }
+    }
+  }
+
+  &.stat-card--blue .stat-icon {
+    background: rgba(0, 136, 254, 0.1);
+    color: #0088FE;
+  }
+
+  &.stat-card--green .stat-icon {
+    background: rgba(0, 196, 159, 0.1);
+    color: #00C49F;
+  }
+
+  &.stat-card--orange .stat-icon {
+    background: rgba(255, 128, 66, 0.1);
+    color: #FF8042;
+  }
+
+  &.stat-card--purple .stat-icon {
+    background: rgba(136, 132, 216, 0.1);
+    color: #8884D8;
+  }
+}
+

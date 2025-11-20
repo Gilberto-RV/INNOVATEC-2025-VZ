@@ -1,0 +1,214 @@
+.hours-heatmap {
+  width: 100%;
+  padding: 1rem;
+
+  .heatmap-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .heatmap-subtitle {
+    margin: 0 0 1rem 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .heatmap-empty {
+    padding: 3rem;
+    text-align: center;
+    color: #999;
+    font-size: 0.9rem;
+  }
+
+  .heatmap-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .heatmap-days {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 50px;
+
+    .heatmap-corner {
+      height: 30px; // Misma altura que los hour-labels
+    }
+
+    .day-label {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #666;
+      padding: 0.5rem;
+    }
+  }
+
+  .heatmap-content {
+    flex: 1;
+    overflow-x: auto;
+
+    .heatmap-hours {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 0.25rem;
+      margin-bottom: 0.5rem;
+
+      .hour-label {
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        color: #666;
+        font-weight: 500;
+        transform: rotate(-45deg);
+        transform-origin: center;
+        white-space: nowrap;
+      }
+    }
+
+    .heatmap-cells {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .heatmap-row {
+        display: grid;
+        grid-template-columns: repeat(24, 1fr);
+        gap: 0.25rem;
+
+        .heatmap-cell {
+          width: 100%;
+          height: 40px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          font-size: 0.75rem;
+          font-weight: 600;
+          position: relative;
+
+          &:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+          }
+
+          .cell-value {
+            font-size: 0.85rem;
+            font-weight: 700;
+          }
+
+          .cell-label {
+            font-size: 0.65rem;
+            opacity: 0.8;
+            margin-top: 2px;
+          }
+        }
+      }
+    }
+  }
+
+  .heatmap-legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+
+    .legend-label {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .legend-gradient {
+      display: flex;
+      gap: 0;
+      height: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+
+      .legend-color {
+        width: 40px;
+        height: 100%;
+      }
+    }
+
+    .legend-values {
+      font-size: 0.85rem;
+      color: #999;
+      font-style: italic;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 1200px) {
+  .hours-heatmap {
+    .heatmap-content {
+      .heatmap-hours {
+        .hour-label {
+          font-size: 0.65rem;
+        }
+      }
+
+      .heatmap-cells {
+        .heatmap-row {
+          .heatmap-cell {
+            height: 35px;
+            font-size: 0.7rem;
+
+            .cell-value {
+              font-size: 0.75rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .hours-heatmap {
+    .heatmap-content {
+      .heatmap-hours {
+        grid-template-columns: repeat(12, 1fr); // Mostrar cada 2 horas
+
+        .hour-label {
+          font-size: 0.6rem;
+        }
+      }
+
+      .heatmap-cells {
+        .heatmap-row {
+          grid-template-columns: repeat(12, 1fr);
+
+          .heatmap-cell {
+            height: 30px;
+            font-size: 0.65rem;
+
+            .cell-value {
+              font-size: 0.7rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

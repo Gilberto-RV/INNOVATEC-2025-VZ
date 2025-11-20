@@ -1,0 +1,100 @@
+.confidence-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &.confidence-small {
+    .confidence-bar {
+      height: 6px;
+    }
+
+    .confidence-label {
+      font-size: 0.75rem;
+    }
+  }
+
+  &.confidence-medium {
+    .confidence-bar {
+      height: 8px;
+    }
+
+    .confidence-label {
+      font-size: 0.85rem;
+    }
+  }
+
+  &.confidence-large {
+    .confidence-bar {
+      height: 10px;
+    }
+
+    .confidence-label {
+      font-size: 0.9rem;
+    }
+  }
+
+  .confidence-bar {
+    flex: 1;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+
+    .confidence-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+
+      &.confidence-fill-high {
+        background: linear-gradient(90deg, #00C49F 0%, #00A085 100%);
+      }
+
+      &.confidence-fill-medium {
+        background: linear-gradient(90deg, #FFBB28 0%, #FFA500 100%);
+      }
+
+      &.confidence-fill-low {
+        background: linear-gradient(90deg, #FF8042 0%, #FF6B35 100%);
+      }
+    }
+  }
+
+  .confidence-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+
+    &.confidence-high {
+      color: #00C49F;
+    }
+
+    &.confidence-medium {
+      color: #FFBB28;
+    }
+
+    &.confidence-low {
+      color: #FF8042;
+    }
+
+    .confidence-percentage {
+      font-weight: 700;
+    }
+  }
+
+  &.confidence-high .confidence-label {
+    color: #00C49F;
+  }
+
+  &.confidence-medium .confidence-label {
+    color: #FFBB28;
+  }
+
+  &.confidence-low .confidence-label {
+    color: #FF8042;
+  }
+}
+
