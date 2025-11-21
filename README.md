@@ -19,6 +19,12 @@ Guía rápida para levantar todos los servicios del proyecto:
 - `gestory/project/` → Panel Admin (Vite) con Dashboard Big Data y ML
 - `project/` → App móvil (Expo)
 
+## Documentación dedicada
+- `backend/README.md` → guía de instalación, scripts npm y contexto de MongoDB para la API.
+- `gestory/project/README.md` → guía del panel administrativa.
+- `project/README.md` → guía específica de la app Expo.
+- `backend/ml-service/README_ML_COMPLETO.md` → documentación extensa del servicio ML.
+
 ## 🆕 Funcionalidades Principales
 
 ### Big Data
@@ -27,7 +33,6 @@ El proyecto incluye un módulo completo de **Big Data** que permite:
 - 📈 Dashboard interactivo en el panel de administración con gráficos mejorados
 - 🔄 Procesamiento por lotes automatizado
 - 💾 Almacenamiento escalable en MongoDB Atlas
-- 🌐 Interfaz completamente en español con traducciones
 - 📊 Visualizaciones optimizadas (gráficos horizontales, nombres truncados)
 
 **Más información**: Ver `backend/README_BIG_DATA.md` y `backend/BIG_DATA_IMPLEMENTATION.md`
@@ -228,6 +233,15 @@ npm run create-admin
 npm run verify-consistency
 ```
 
+## 📦 Scripts del entorno completo
+- `.\start-all-services.ps1` → instala dependencias (si faltan), lanza backend (5000), panel admin (5173), app Expo y el ML Service (8000), valida puertos y agrega `ML_SERVICE_URL` al `.env` del backend cuando falta.
+
+- `.\test-integridad.ps1` → revisa puertos, endpoints clave del backend, la salud del ML Service y la respuesta del frontend; muestra una tasa de éxito y sugiere `start-all-services.ps1` si algo falla.
+
+- `backend/ml-service/start_ml_service.bat` y `backend/ml-service/iniciar-ml-service.ps1` → scripts que comprueban `venv`, `.env`, entrenan los modelos que faltan y ejecutan `main.py` con mensajes claros.
+
+- `backend/ml-service/iniciar.bat` y `backend/ml-service/start-ml.ps1` permanecen como variantes más simples (activan el venv y lanzan `main.py`) y pueden retirarse si se decide estandarizar en los anteriores para evitar confusión.
+
 ## Credenciales de administrador
 
 ### Usuario Administrador Principal
@@ -315,4 +329,4 @@ cd gestory/project
 # (haz los comandos git aquí)
 ```
 
-Esto mantendrá tus repos siempre actualizados en GitHub para colaboración o respaldo. 
+Esto mantendrá los repos siempre actualizados en GitHub para respaldo. 
