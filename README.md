@@ -24,6 +24,7 @@ Guía rápida para levantar todos los servicios del proyecto:
 - `gestory/project/README.md` → guía del panel administrativa.
 - `project/README.md` → guía específica de la app Expo.
 - `backend/ml-service/README_ML_COMPLETO.md` → documentación extensa del servicio ML.
+- `Cambios de mapa.md` → plan de migración al nuevo `map ITA-V5.geojson` y limpieza de datos sintéticos.
 
 ## 🆕 Funcionalidades Principales
 
