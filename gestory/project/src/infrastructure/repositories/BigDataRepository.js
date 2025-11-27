@@ -49,6 +49,23 @@ export class BigDataRepository {
   }
 
   /**
+   * Obtener horas pico de edificios
+   */
+  async getBuildingPeakHours(filters = {}) {
+    const params = new URLSearchParams();
+    if (filters.startDate) params.append('startDate', filters.startDate);
+    if (filters.endDate) params.append('endDate', filters.endDate);
+    if (filters.buildingId) params.append('buildingId', filters.buildingId);
+    if (filters.limit) params.append('limit', filters.limit);
+    
+    const queryString = params.toString();
+    const url = `/bigdata/buildings/peak-hours${queryString ? `?${queryString}` : ''}`;
+    
+    const response = await httpClient.get(url);
+    return response.data;
+  }
+
+  /**
    * Ejecutar procesamiento por lotes manualmente
    */
   async runBatchProcessing() {

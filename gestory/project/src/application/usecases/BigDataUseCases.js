@@ -45,6 +45,19 @@ export class BigDataUseCases {
   }
 
   /**
+   * Obtener horas pico de edificios
+   */
+  async getBuildingPeakHours(filters = {}) {
+    try {
+      const result = await this.repository.getBuildingPeakHours(filters);
+      return result.data;
+    } catch (error) {
+      console.error('Error obteniendo horas pico:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Ejecutar procesamiento por lotes
    */
   async runBatchProcessing() {

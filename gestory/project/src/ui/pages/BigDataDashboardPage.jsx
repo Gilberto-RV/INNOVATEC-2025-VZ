@@ -34,6 +34,8 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'
 export function BigDataDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
+  const [peakHoursData, setPeakHoursData] = useState([]);
+  const [selectedBuilding, setSelectedBuilding] = useState('all'); // 'all' o ID del edificio
   const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null
@@ -42,6 +44,7 @@ export function BigDataDashboardPage() {
 
   useEffect(() => {
     loadDashboardData();
+    loadPeakHoursData();
   }, [dateRange]);
 
   const loadDashboardData = async () => {
@@ -56,6 +59,21 @@ export function BigDataDashboardPage() {
       console.error('Error cargando dashboard de Big Data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPeakHoursData = async () => {
+    try {
+      const data = await bigDataUseCases.getBuildingPeakHours({
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate,
+        limit: 13
+      });
+      setPeakHoursData(data || []);
+      console.log('Peak Hours cargadas:', data);
+    } catch (error) {
+      console.error('Error cargando horas pico:', error);
+      setPeakHoursData([]);
     }
   };
 
@@ -146,22 +164,42 @@ export function BigDataDashboardPage() {
   const totalEventViews = eventStats.reduce((sum, item) => sum + (item.totalViews || 0), 0);
   const totalUniqueEventVisitors = eventStats.reduce((sum, item) => sum + (item.totalUniqueVisitors || 0), 0);
   
-  // Calcular horas pico de edificios
-  const calculatePeakHours = () => {
+  // Calcular horas pico de edificios desde el nuevo endpoint
+  const getPeakHoursChartData = () => {
     const hourCounts = Array(24).fill(0);
-    buildingStats.forEach(building => {
-      if (building.peakHours && Array.isArray(building.peakHours)) {
+    
+    if (selectedBuilding === 'all') {
+      // Vista general: sumar todos los edificios
+      peakHoursData.forEach(building => {
+        if (building.peakHours && Array.isArray(building.peakHours)) {
+          building.peakHours.forEach(ph => {
+            if (ph.hour >= 0 && ph.hour < 24) {
+              hourCounts[ph.hour] += ph.count || 0;
+            }
+          });
+        }
+      });
+    } else {
+      // Vista específica: solo el edificio seleccionado
+      const building = peakHoursData.find(b => b.buildingId === selectedBuilding);
+      if (building && building.peakHours && Array.isArray(building.peakHours)) {
         building.peakHours.forEach(ph => {
           if (ph.hour >= 0 && ph.hour < 24) {
-            hourCounts[ph.hour] += ph.count || 0;
+            hourCounts[ph.hour] = ph.count || 0;
           }
         });
       }
-    });
+    }
+    
     return hourCounts.map((count, hour) => ({ hour, count }));
   };
   
-  const peakHoursData = calculatePeakHours();
+  // Obtener nombre del edificio seleccionado para el título
+  const getSelectedBuildingName = () => {
+    if (selectedBuilding === 'all') return 'Todos los Edificios';
+    const building = peakHoursData.find(b => b.buildingId === selectedBuilding);
+    return building?.buildingName || 'Edificio Desconocido';
+  };
 
   return (
     <div className="bigdata-dashboard-page">
@@ -308,26 +346,61 @@ export function BigDataDashboardPage() {
 
         {/* Gráfico de horas pico de edificios */}
         <Card title="Horas Pico de Visitas a Edificios" className="chart-card">
-          {peakHoursData.some(h => h.count > 0) ? (
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={peakHoursData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="hour" 
-                  label={{ value: 'Hora del día', position: 'insideBottom', offset: -5 }}
-                  tickFormatter={(hour) => `${hour}:00`}
-                />
-                <YAxis label={{ value: 'Visitas', angle: -90, position: 'insideLeft' }} />
-                <Tooltip 
-                  formatter={(value) => [value, 'Visitas']}
-                  labelFormatter={(hour) => `Hora: ${hour}:00`}
-                />
-                <Legend />
-                <Bar dataKey="count" fill="#8884D8" name="Total de Visitas" />
-              </BarChart>
-            </ResponsiveContainer>
+          {peakHoursData.length > 0 ? (
+            <>
+              {/* Selector de edificios */}
+              <div style={{ marginBottom: '20px', padding: '0 20px' }}>
+                <label style={{ marginRight: '10px', fontWeight: 'bold' }}>
+                  Edificio:
+                </label>
+                <select 
+                  value={selectedBuilding}
+                  onChange={(e) => setSelectedBuilding(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #ddd',
+                    fontSize: '14px',
+                    minWidth: '200px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="all">📊 Todos los Edificios (Consolidado)</option>
+                  {peakHoursData.map(building => (
+                    <option key={building.buildingId} value={building.buildingId}>
+                      {building.buildingName}
+                    </option>
+                  ))}
+                </select>
+                <span style={{ marginLeft: '15px', color: '#666', fontSize: '14px' }}>
+                  Mostrando: <strong>{getSelectedBuildingName()}</strong>
+                </span>
+              </div>
+
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={getPeakHoursChartData()}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="hour" 
+                    label={{ value: 'Hora del día', position: 'insideBottom', offset: -5 }}
+                    tickFormatter={(hour) => `${hour}:00`}
+                  />
+                  <YAxis label={{ value: 'Visitas', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip 
+                    formatter={(value) => [value, 'Visitas']}
+                    labelFormatter={(hour) => `Hora: ${hour}:00`}
+                  />
+                  <Legend />
+                  <Bar 
+                    dataKey="count" 
+                    fill={selectedBuilding === 'all' ? '#8884D8' : '#00C49F'} 
+                    name={selectedBuilding === 'all' ? 'Total de Visitas (Todos)' : `Visitas a ${getSelectedBuildingName()}`}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </>
           ) : (
-            <div className="no-data-message">No hay datos de horas pico disponible</div>
+            <div className="no-data-message">No hay datos de horas pico disponibles. Los datos se generarán en el próximo procesamiento por lotes.</div>
           )}
         </Card>
       </div>
@@ -349,13 +422,23 @@ export function BigDataDashboardPage() {
               <tbody>
                 {buildingStats.length > 0 ? (
                   buildingStats.slice(0, 15).map((item, index) => {
-                    // Encontrar la hora pico del edificio
+                    // Encontrar la hora pico del edificio desde peakHoursData
                     let peakHour = 'N/A';
-                    if (item.peakHours && Array.isArray(item.peakHours) && item.peakHours.length > 0) {
-                      const maxPeak = item.peakHours.reduce((max, ph) => 
-                        (ph.count || 0) > (max.count || 0) ? ph : max, item.peakHours[0]
+                    
+                    // Buscar el edificio en peakHoursData por nombre o ID
+                    const buildingPeakData = peakHoursData.find(
+                      b => b.buildingName === item.buildingName || b.buildingId === item._id
+                    );
+                    
+                    if (buildingPeakData && buildingPeakData.peakHours && 
+                        Array.isArray(buildingPeakData.peakHours) && 
+                        buildingPeakData.peakHours.length > 0) {
+                      // Encontrar la hora con más visitas
+                      const maxPeak = buildingPeakData.peakHours.reduce((max, ph) => 
+                        (ph.count || 0) > (max.count || 0) ? ph : max, 
+                        buildingPeakData.peakHours[0]
                       );
-                      peakHour = `${maxPeak.hour}:00`;
+                      peakHour = `${maxPeak.hour.toString().padStart(2, '0')}:00`;
                     }
                     
                     return (
