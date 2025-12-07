@@ -25,6 +25,7 @@ import { FactorsPanel } from '../components/ml/FactorsPanel.jsx';
 import { SkeletonLoader } from '../components/ml/SkeletonLoader.jsx';
 import { HoursHeatmap } from '../components/ml/HoursHeatmap.jsx';
 import { InfoTooltip, PredictionTooltip, SaturationTooltip } from '../components/ml/InfoTooltip.jsx';
+import { ListStatsBar } from '../components/ml/ListStatsBar.jsx';
 import { MLUseCases } from '../../application/usecases/MLUseCases.js';
 import { BigDataUseCases } from '../../application/usecases/BigDataUseCases.js';
 import {
@@ -50,6 +51,7 @@ import '../components/ml/FactorsPanel.scss';
 import '../components/ml/SkeletonLoader.scss';
 import '../components/ml/HoursHeatmap.scss';
 import '../components/ml/InfoTooltip.scss';
+import '../components/ml/ListStatsBar.scss';
 
 const mlUseCases = new MLUseCases();
 const bigDataUseCases = new BigDataUseCases();
@@ -67,6 +69,8 @@ export function MLDashboardPage() {
   const [mlStatus, setMLStatus] = useState(null);
   const [buildingStats, setBuildingStats] = useState([]);
   const [eventStats, setEventStats] = useState([]);
+  const [allBuildings, setAllBuildings] = useState([]); // NUEVO: Lista completa de edificios
+  const [allEvents, setAllEvents] = useState([]); // NUEVO: Lista completa de eventos
   const [predictions, setPredictions] = useState({
     attendances: [],
     mobilities: [],
@@ -75,7 +79,7 @@ export function MLDashboardPage() {
   const [heatmapData, setHeatmapData] = useState([]);
   const [error, setError] = useState(null);
   
-  // Filtros para tablas
+  // Filtros para tablas y listas
   const [filters, setFilters] = useState({
     saturation: {
       search: '',
@@ -87,6 +91,12 @@ export function MLDashboardPage() {
     },
     mobility: {
       search: ''
+    },
+    buildingList: {
+      search: '' // NUEVO: Búsqueda en lista de edificios
+    },
+    eventList: {
+      search: '' // NUEVO: Búsqueda en lista de eventos
     }
   });
 
@@ -107,6 +117,43 @@ export function MLDashboardPage() {
       const dashboardData = await bigDataUseCases.getDashboardStats();
       setBuildingStats(dashboardData.buildings || []);
       setEventStats(dashboardData.events || []);
+      
+      // NUEVO: Cargar listas completas de edificios y eventos
+      try {
+        const allBuildingsData = await mlUseCases.getAllBuildings();
+        // Asegurar que sea un array
+        if (Array.isArray(allBuildingsData)) {
+          setAllBuildings(allBuildingsData);
+        } else if (allBuildingsData?.data && Array.isArray(allBuildingsData.data)) {
+          setAllBuildings(allBuildingsData.data);
+        } else if (allBuildingsData?.buildings && Array.isArray(allBuildingsData.buildings)) {
+          setAllBuildings(allBuildingsData.buildings);
+        } else {
+          console.warn('Formato inesperado de edificios:', allBuildingsData);
+          setAllBuildings([]);
+        }
+      } catch (err) {
+        console.warn('Error cargando lista de edificios:', err);
+        setAllBuildings([]);
+      }
+      
+      try {
+        const allEventsData = await mlUseCases.getAllEvents();
+        // Asegurar que sea un array
+        if (Array.isArray(allEventsData)) {
+          setAllEvents(allEventsData);
+        } else if (allEventsData?.data && Array.isArray(allEventsData.data)) {
+          setAllEvents(allEventsData.data);
+        } else if (allEventsData?.events && Array.isArray(allEventsData.events)) {
+          setAllEvents(allEventsData.events);
+        } else {
+          console.warn('Formato inesperado de eventos:', allEventsData);
+          setAllEvents([]);
+        }
+      } catch (err) {
+        console.warn('Error cargando lista de eventos:', err);
+        setAllEvents([]);
+      }
       
       // Cargar predicciones de saturación para los top 10 edificios y eventos
       await loadSaturationPredictions(dashboardData.buildings || [], dashboardData.events || []);
@@ -344,6 +391,52 @@ export function MLDashboardPage() {
     });
   }, [predictions.mobilities, filters.mobility]);
 
+  // NUEVO: Filtrar lista completa de edificios
+  const filteredBuildingsList = useMemo(() => {
+    // Asegurar que allBuildings es un array antes de filtrar
+    if (!Array.isArray(allBuildings)) {
+      console.warn('allBuildings no es un array:', allBuildings);
+      return [];
+    }
+    
+    return allBuildings.filter(building => {
+      const searchTerm = filters.buildingList.search.toLowerCase();
+      const buildingName = (building._id || building.name || building.buildingName || '').toLowerCase();
+      return !searchTerm || buildingName.includes(searchTerm);
+    });
+  }, [allBuildings, filters.buildingList]);
+
+  // NUEVO: Filtrar lista completa de eventos (solo futuros)
+  const filteredEventsList = useMemo(() => {
+    // Asegurar que allEvents es un array antes de filtrar
+    if (!Array.isArray(allEvents)) {
+      console.warn('allEvents no es un array:', allEvents);
+      return [];
+    }
+    
+    const now = new Date();
+    
+    return allEvents.filter(event => {
+      // Filtrar solo eventos futuros
+      const eventDate = event.date_time || event.date || event.datetime;
+      if (eventDate) {
+        const eventDateTime = new Date(eventDate);
+        if (eventDateTime < now) {
+          return false; // Excluir eventos pasados
+        }
+      }
+      
+      // Aplicar filtro de búsqueda
+      const searchTerm = filters.eventList.search.toLowerCase();
+      if (searchTerm) {
+        const eventTitle = (event.title || event.eventTitle || event.name || '').toLowerCase();
+        return eventTitle.includes(searchTerm);
+      }
+      
+      return true;
+    });
+  }, [allEvents, filters.eventList]);
+
   // Calcular valores previos simulados (en producción vendrían de historial)
   const previousValues = useMemo(() => {
     return {
@@ -487,6 +580,270 @@ export function MLDashboardPage() {
           color="purple"
           subtitle="Requieren atención"
         />
+      </div>
+
+      {/* Sección de acciones rápidas - LISTAS COMPLETAS */}
+      <div className="quick-actions">
+        {/* Edificios para predicción de movilidad - LISTA COMPLETA */}
+        <Card 
+          title="Predicción de Demanda de Movilidad" 
+          className="quick-actions-card"
+          header={
+            <>
+              <div className="quick-actions-header">
+                <p className="section-description">
+                  Selecciona edificios para obtener predicciones de demanda de visitantes
+                </p>
+                <div className="search-input">
+                  <Search size={16} />
+                  <input
+                    type="text"
+                    placeholder="Buscar edificio..."
+                    value={filters.buildingList.search}
+                    onChange={(e) => setFilters(prev => ({
+                      ...prev,
+                      buildingList: { search: e.target.value }
+                    }))}
+                  />
+                  {filters.buildingList.search && (
+                    <button
+                      className="clear-search"
+                      onClick={() => setFilters(prev => ({
+                        ...prev,
+                        buildingList: { search: '' }
+                      }))}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+              <ListStatsBar
+                type="building"
+                total={allBuildings.length}
+                filtered={filteredBuildingsList.length}
+                withPredictions={predictions.mobilities.length}
+              />
+            </>
+          }
+        >
+          <div className="quick-action-items scrollable">
+            {filteredBuildingsList.length === 0 ? (
+              <div className="no-data-message" style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+                {allBuildings.length === 0 
+                  ? 'No hay edificios disponibles' 
+                  : 'No se encontraron edificios que coincidan con la búsqueda'}
+              </div>
+            ) : (
+              filteredBuildingsList.map((building, index) => {
+                const buildingId = building._id || building.id || building.buildingId;
+                const buildingName = building._id || building.name || building.buildingName || `Edificio ${index + 1}`;
+                const hasPrediction = predictions.mobilities.some(m => 
+                  (m.buildingId === buildingId)
+                );
+                const existingPrediction = predictions.mobilities.find(m => 
+                  (m.buildingId === buildingId)
+                );
+                
+                return (
+                  <div 
+                    key={buildingId || index} 
+                    className={`quick-action-item ${hasPrediction ? 'has-prediction' : ''}`}
+                  >
+                    <div className="item-icon">
+                      <Building2 size={28} />
+                    </div>
+                    <div className="item-content">
+                      <div className="item-header">
+                        <h4 className="item-title">{buildingName}</h4>
+                        {hasPrediction && (
+                          <span className="prediction-badge">
+                            <CheckCircle2 size={14} />
+                            Predicción disponible
+                          </span>
+                        )}
+                      </div>
+                      <div className="item-stats">
+                        <span className="stat-item">
+                          <Building2 size={12} />
+                          ID: {buildingId}
+                        </span>
+                      </div>
+                      {existingPrediction && (
+                        <div className="item-prediction">
+                          <span className="prediction-label">Predicción actual:</span>
+                          <span className="prediction-value">
+                            {existingPrediction.prediction || 0} visitantes
+                          </span>
+                          <ConfidenceIndicator 
+                            confidence={existingPrediction.confidence || 0} 
+                            size="small" 
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="item-actions">
+                      {hasPrediction ? (
+                        <button
+                          className="item-action-btn remove"
+                          onClick={(e) => handleRemoveMobility(buildingId, e)}
+                          title="Quitar predicción"
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                      ) : (
+                        <button
+                          className="item-action-btn predict"
+                          onClick={(e) => handlePredictMobility(buildingId, e)}
+                          title="Predecir demanda"
+                        >
+                          <Zap size={24} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </Card>
+
+        {/* Eventos para predicción de asistencia - LISTA COMPLETA */}
+        <Card 
+          title="Predicción de Asistencia a Eventos" 
+          className="quick-actions-card"
+          header={
+            <>
+              <div className="quick-actions-header">
+                <p className="section-description">
+                  Selecciona eventos para obtener predicciones de asistencia
+                </p>
+                <div className="search-input">
+                  <Search size={16} />
+                  <input
+                    type="text"
+                    placeholder="Buscar evento..."
+                    value={filters.eventList.search}
+                    onChange={(e) => setFilters(prev => ({
+                      ...prev,
+                      eventList: { search: e.target.value }
+                    }))}
+                  />
+                  {filters.eventList.search && (
+                    <button
+                      className="clear-search"
+                      onClick={() => setFilters(prev => ({
+                        ...prev,
+                        eventList: { search: '' }
+                      }))}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+              <ListStatsBar
+                type="event"
+                total={allEvents.length}
+                filtered={filteredEventsList.length}
+                withPredictions={predictions.attendances.length}
+              />
+            </>
+          }
+        >
+          <div className="quick-action-items scrollable">
+            {filteredEventsList.length === 0 ? (
+              <div className="no-data-message" style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+                {allEvents.length === 0 
+                  ? 'No hay eventos disponibles' 
+                  : 'No se encontraron eventos que coincidan con la búsqueda'}
+              </div>
+            ) : (
+              filteredEventsList.map((event, index) => {
+                const eventId = event._id || event.id || event.eventId;
+                const eventTitle = event.title || event.eventTitle || event.name || `Evento ${index + 1}`;
+                const eventDate = event.date_time || event.date || event.datetime;
+                const hasPrediction = predictions.attendances.some(a => 
+                  (a.eventId === eventId)
+                );
+                const existingPrediction = predictions.attendances.find(a => 
+                  (a.eventId === eventId)
+                );
+                
+                return (
+                  <div 
+                    key={eventId || index} 
+                    className={`quick-action-item ${hasPrediction ? 'has-prediction' : ''}`}
+                  >
+                    <div className="item-icon">
+                      <Calendar size={28} />
+                    </div>
+                    <div className="item-content">
+                      <div className="item-header">
+                        <h4 className="item-title">{eventTitle}</h4>
+                        {hasPrediction && (
+                          <span className="prediction-badge">
+                            <CheckCircle2 size={14} />
+                            Predicción disponible
+                          </span>
+                        )}
+                      </div>
+                      <div className="item-stats">
+                        {eventDate && (
+                          <span className="stat-item">
+                            <Calendar size={12} />
+                            {new Date(eventDate).toLocaleDateString('es-ES', { 
+                              day: 'numeric', 
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </span>
+                        )}
+                        {event.building && (
+                          <span className="stat-item">
+                            <Building2 size={12} />
+                            {event.building}
+                          </span>
+                        )}
+                      </div>
+                      {existingPrediction && (
+                        <div className="item-prediction">
+                          <span className="prediction-label">Predicción actual:</span>
+                          <span className="prediction-value">
+                            {existingPrediction.prediction || 0} personas
+                          </span>
+                          <ConfidenceIndicator 
+                            confidence={existingPrediction.confidence || 0} 
+                            size="small" 
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="item-actions">
+                      {hasPrediction ? (
+                        <button
+                          className="item-action-btn remove"
+                          onClick={(e) => handleRemoveAttendance(eventId, e)}
+                          title="Quitar predicción"
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                      ) : (
+                        <button
+                          className="item-action-btn predict"
+                          onClick={(e) => handlePredictAttendance(eventId, e)}
+                          title="Predecir asistencia"
+                        >
+                          <Users size={24} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </Card>
       </div>
 
       {/* Gráficos */}
@@ -906,186 +1263,6 @@ export function MLDashboardPage() {
                 )}
               </tbody>
             </table>
-          </div>
-        </Card>
-      </div>
-
-      {/* Sección de acciones rápidas - Mejorada */}
-      <div className="quick-actions">
-        {/* Edificios para predicción de movilidad */}
-        <Card title="Predicción de Demanda de Movilidad" className="quick-actions-card">
-          <p className="section-description">
-            Selecciona un edificio para obtener una predicción de su demanda de visitantes basada en patrones históricos
-          </p>
-          <div className="quick-action-items">
-            {buildingStats.slice(0, 5).map((building, index) => {
-              const hasPrediction = predictions.mobilities.some(m => 
-                (m.buildingId === building._id || m.buildingId === building.buildingId)
-              );
-              const existingPrediction = predictions.mobilities.find(m => 
-                (m.buildingId === building._id || m.buildingId === building.buildingId)
-              );
-              
-              return (
-                <div 
-                  key={index} 
-                  className={`quick-action-item ${hasPrediction ? 'has-prediction' : ''}`}
-                >
-                  <div className="item-icon">
-                    <Building2 size={24} />
-                  </div>
-                  <div className="item-content">
-                    <div className="item-header">
-                      <h4 className="item-title">{building.buildingName || `Edificio ${index + 1}`}</h4>
-                      {hasPrediction && (
-                        <span className="prediction-badge">
-                          <CheckCircle2 size={14} />
-                          Predicción disponible
-                        </span>
-                      )}
-                    </div>
-                    <div className="item-stats">
-                      {building.totalViews && (
-                        <span className="stat-item">
-                          <Activity size={12} />
-                          {building.totalViews.toLocaleString()} vistas
-                        </span>
-                      )}
-                      {building.uniqueVisitors && (
-                        <span className="stat-item">
-                          <Users size={12} />
-                          {building.uniqueVisitors.toLocaleString()} visitantes
-                        </span>
-                      )}
-                    </div>
-                    {existingPrediction && (
-                      <div className="item-prediction">
-                        <span className="prediction-label">Predicción actual:</span>
-                        <span className="prediction-value">
-                          {existingPrediction.prediction || 0} visitantes
-                        </span>
-                        <ConfidenceIndicator 
-                          confidence={existingPrediction.confidence || 0} 
-                          size="small" 
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div className="item-actions">
-                    {hasPrediction ? (
-                      <button
-                        className="item-action-btn remove"
-                        onClick={(e) => handleRemoveMobility(building._id || building.buildingId, e)}
-                        title="Quitar predicción"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    ) : (
-                      <button
-                        className="item-action-btn predict"
-                        onClick={(e) => handlePredictMobility(building._id || building.buildingId, e)}
-                        title="Predecir demanda"
-                      >
-                        <Zap size={20} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-
-        {/* Eventos para predicción de asistencia */}
-        <Card title="Predicción de Asistencia a Eventos" className="quick-actions-card">
-          <p className="section-description">
-            Selecciona un evento para obtener una predicción de asistencia basada en interés previo y patrones históricos
-          </p>
-          <div className="quick-action-items">
-            {eventStats.slice(0, 5).map((event, index) => {
-              const hasPrediction = predictions.attendances.some(a => 
-                (a.eventId === event._id || a.eventId === event.eventId)
-              );
-              const existingPrediction = predictions.attendances.find(a => 
-                (a.eventId === event._id || a.eventId === event.eventId)
-              );
-              
-              return (
-                <div 
-                  key={index} 
-                  className={`quick-action-item ${hasPrediction ? 'has-prediction' : ''}`}
-                >
-                  <div className="item-icon">
-                    <Calendar size={24} />
-                  </div>
-                  <div className="item-content">
-                    <div className="item-header">
-                      <h4 className="item-title">{event.eventTitle || `Evento ${index + 1}`}</h4>
-                      {hasPrediction && (
-                        <span className="prediction-badge">
-                          <CheckCircle2 size={14} />
-                          Predicción disponible
-                        </span>
-                      )}
-                    </div>
-                    <div className="item-stats">
-                      {event.totalViews && (
-                        <span className="stat-item">
-                          <Activity size={12} />
-                          {event.totalViews.toLocaleString()} vistas
-                        </span>
-                      )}
-                      {event.popularityScore && (
-                        <span className="stat-item popularity">
-                          <TrendingUp size={12} />
-                          Score: {Math.round(event.popularityScore)}
-                        </span>
-                      )}
-                      {event.date && (
-                        <span className="stat-item">
-                          <Calendar size={12} />
-                          {new Date(event.date).toLocaleDateString('es-ES', { 
-                            day: 'numeric', 
-                            month: 'short' 
-                          })}
-                        </span>
-                      )}
-                    </div>
-                    {existingPrediction && (
-                      <div className="item-prediction">
-                        <span className="prediction-label">Predicción actual:</span>
-                        <span className="prediction-value">
-                          {existingPrediction.prediction || 0} personas
-                        </span>
-                        <ConfidenceIndicator 
-                          confidence={existingPrediction.confidence || 0} 
-                          size="small" 
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div className="item-actions">
-                    {hasPrediction ? (
-                      <button
-                        className="item-action-btn remove"
-                        onClick={(e) => handleRemoveAttendance(event._id || event.eventId, e)}
-                        title="Quitar predicción"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    ) : (
-                      <button
-                        className="item-action-btn predict"
-                        onClick={(e) => handlePredictAttendance(event._id || event.eventId, e)}
-                        title="Predecir asistencia"
-                      >
-                        <Users size={20} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </Card>
       </div>

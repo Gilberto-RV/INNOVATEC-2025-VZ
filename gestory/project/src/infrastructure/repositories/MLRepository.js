@@ -72,5 +72,27 @@ export class MLRepository {
     const response = await httpClient.get('/bigdata/ml/status');
     return response.data;
   }
+
+  /**
+   * Obtener lista completa de edificios
+   */
+  async getAllBuildings() {
+    const response = await httpClient.get('/buildings');
+    // El backend devuelve directamente un array de edificios
+    return response.data;
+  }
+
+  /**
+   * Obtener lista completa de eventos
+   */
+  async getAllEvents() {
+    const response = await httpClient.get('/events');
+    // El backend devuelve { events: [...] }
+    // Si la respuesta tiene la propiedad 'events', devolverla, si no, devolver data directamente
+    if (response.data && response.data.events) {
+      return response.data.events;
+    }
+    return response.data;
+  }
 }
 

@@ -77,5 +77,31 @@ export class MLUseCases {
       throw error;
     }
   }
+
+  /**
+   * Obtener lista completa de edificios
+   */
+  async getAllBuildings() {
+    try {
+      const result = await this.repository.getAllBuildings();
+      return result.data || result;
+    } catch (error) {
+      console.error('Error obteniendo lista de edificios:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener lista completa de eventos
+   */
+  async getAllEvents() {
+    try {
+      const result = await this.repository.getAllEvents();
+      return result.data || result;
+    } catch (error) {
+      console.error('Error obteniendo lista de eventos:', error);
+      throw error;
+    }
+  }
 }
 
